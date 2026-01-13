@@ -2,8 +2,8 @@
 {
     public interface IPlayerRepository
     {
-        PlayerInfo GetPlayer(string nickName);
+        Task<PlayerInfo> GetPlayer(string nickName);
 
-        bool AddPlayer(PlayerInfo info);
+        Task<bool> AddPlayer(PlayerInfo info);
     }
 }

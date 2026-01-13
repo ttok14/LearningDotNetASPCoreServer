@@ -14,9 +14,9 @@ namespace LearningServer01.Controllers
         }
 
         [HttpGet("{userId}")]
-        public ActionResult<PlayerInfo> Get(string userId)
+        public async Task<ActionResult<PlayerInfo>> Get(string userId)
         {
-            var info = _repository.GetPlayer(userId);
+            var info = await _repository.GetPlayer(userId);
 
             if (info == null)
                 return NotFound($"{userId}님은 존재하지 않습니다.");
@@ -25,12 +25,12 @@ namespace LearningServer01.Controllers
         }
 
         [HttpPost]
-        public ActionResult<bool> CreatePlayer([FromBody] PlayerInfo info)
+        public async Task<ActionResult<bool>> CreatePlayer([FromBody] PlayerInfo info)
         {
             if (info == null)
                 return BadRequest();
 
-            if (_repository.AddPlayer(info) == false)
+            if (await _repository.AddPlayer(info) == false)
                 return Conflict("이미 존재하는 닉네임입니다.");
 
             return Ok();

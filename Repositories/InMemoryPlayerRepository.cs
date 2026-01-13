@@ -12,16 +12,20 @@
             }
         };
 
-        public PlayerInfo? GetPlayer(string nickname)
+        public async Task<PlayerInfo> GetPlayer(string nickname)
         {
+            await Task.Delay(1000);
+
             _db.TryGetValue(nickname, out var info);
             if (info == null)
                 return null;
             return info;
         }
 
-        public bool AddPlayer(PlayerInfo info)
+        public async Task<bool> AddPlayer(PlayerInfo info)
         {
+            await Task.Delay(1000);
+
             if (_db.ContainsKey(info.NickName))
                 return false;
 
