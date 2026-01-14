@@ -1,5 +1,7 @@
 
+using LearningServer01.Data;
 using LearningServer01.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace LearningServer01
 {
@@ -12,14 +14,26 @@ namespace LearningServer01
             // Add services to the container.
 
             builder.Services.AddControllers()
-                .AddJsonOptions(options=>
+                .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.PropertyNamingPolicy = null;
                 });
-            builder.Services.AddSingleton<IPlayerRepository, InMemoryPlayerRepository>();
+            // builder.Services.AddSingleton<IPlayerRepository, InMemoryPlayerRepository>();
+            builder.Services.AddScoped<IPlayerRepository, DbPlayerRepository>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                Console.WriteLine($"Failed to Get DefaultConnection , Check appsettings.json");
+            }
+            else
+            {
+                builder.Services.AddDbContext<AppDbContext>(options =>
+                    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+            }
 
             var app = builder.Build();
 

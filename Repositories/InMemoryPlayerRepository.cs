@@ -8,7 +8,7 @@
             {
                 NickName = "ttok14",
                 Level = 51,
-                Items = new List<string>() { "NinjaSword01", "Shield01" }
+                Gold = 1000,
             }
         };
 
