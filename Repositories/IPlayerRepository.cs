@@ -2,8 +2,8 @@
 {
     public interface IPlayerRepository
     {
-        Task<PlayerInfo> GetPlayer(string nickName);
+        Task<PlayerInfo> GetPlayerAsync(string id);
 
-        Task<bool> AddPlayer(PlayerInfo info);
+        Task<bool> AddPlayerAsync(PlayerInfo info);
     }
 }

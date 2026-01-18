@@ -6,13 +6,13 @@
         {
             ["YunSeon"] = new PlayerInfo()
             {
-                NickName = "ttok14",
+                ID = "ttok14",
                 Level = 51,
                 Gold = 1000,
             }
         };
 
-        public async Task<PlayerInfo> GetPlayer(string nickname)
+        public async Task<PlayerInfo> GetPlayerAsync(string nickname)
         {
             await Task.Delay(1000);
 
@@ -22,14 +22,14 @@
             return info;
         }
 
-        public async Task<bool> AddPlayer(PlayerInfo info)
+        public async Task<bool> AddPlayerAsync(PlayerInfo info)
         {
             await Task.Delay(1000);
 
-            if (_db.ContainsKey(info.NickName))
+            if (_db.ContainsKey(info.ID))
                 return false;
 
-            _db.Add(info.NickName, info);
+            _db.Add(info.ID, info);
 
             return true;
         }

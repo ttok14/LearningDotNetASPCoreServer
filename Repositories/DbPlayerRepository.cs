@@ -11,15 +11,15 @@ namespace LearningServer01.Repositories
         {
             _context = dbContext;
         }
-        public async Task<PlayerInfo> GetPlayer(string nickName)
+        public async Task<PlayerInfo> GetPlayerAsync(string nickName)
         {
             return await _context.Players
-                .FirstOrDefaultAsync(p => p.NickName == nickName);
+                .FirstOrDefaultAsync(p => p.ID == nickName);
         }
 
-        public async Task<bool> AddPlayer(PlayerInfo info)
+        public async Task<bool> AddPlayerAsync(PlayerInfo info)
         {
-            bool exists = await _context.Players.AnyAsync(p => p.NickName == info.NickName);
+            bool exists = await _context.Players.AnyAsync(p => p.ID == info.ID);
 
             if (exists)
                 return false;
