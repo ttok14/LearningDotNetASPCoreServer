@@ -33,5 +33,20 @@
 
             return true;
         }
+
+        public async Task<bool> AddGold(string userId, int amount)
+        {
+            return false;
+        }
+
+        public async Task<bool> AddWood(string userId, int amount)
+        {
+            return false;
+        }
+
+        public async Task<bool> AddFood(string userId, int amount)
+        {
+            return false;
+        }
     }
 }

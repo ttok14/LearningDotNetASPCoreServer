@@ -37,6 +37,39 @@ namespace JNetwork
         public string Password { get; set; }
     }
 
+    public class Req_CheatAddGold : WebPacketBase
+    {
+        public override Code ID => Code.CheatAddGold;
+        public override string GetURLPath()
+        {
+            return "Player/CheatAddGold";
+        }
+
+        public int Amount { get; set; }
+    }
+
+    public class Req_CheatAddWood : WebPacketBase
+    {
+        public override Code ID => Code.CheatAddWood;
+        public override string GetURLPath()
+        {
+            return "Player/CheatAddWood";
+        }
+
+        public int Amount { get; set; }
+    }
+
+    public class Req_CheatAddFood : WebPacketBase
+    {
+        public override Code ID => Code.CheatAddFood;
+        public override string GetURLPath()
+        {
+            return "Player/CheatAddFood";
+        }
+
+        public int Amount { get; set; }
+    }
+
     #endregion
 
     #region ====:: 응답 DTO ::====
@@ -47,6 +80,8 @@ namespace JNetwork
 
     public class Res_Login : WebResponseBase
     {
+        public string Token { get; set; }
+
         public int Level { get; set; }
 
         public int Gold { get; set; }
@@ -55,6 +90,21 @@ namespace JNetwork
 
         public int[] SkillIDs { get; set; }
         public int[] SpellIDs { get; set; }
+    }
+
+    public class Res_CheatAddGold : WebResponseBase
+    {
+        public int CurrentAmount { get; set; }
+    }
+
+    public class Res_CheatAddWood : WebResponseBase
+    {
+        public int CurrentAmount { get; set; }
+    }
+
+    public class Res_CheatAddFood : WebResponseBase
+    {
+        public int CurrentAmount { get; set; }
     }
 
     #endregion

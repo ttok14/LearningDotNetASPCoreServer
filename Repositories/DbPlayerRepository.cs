@@ -1,4 +1,5 @@
 ﻿using LearningServer01.Data;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 
 namespace LearningServer01.Repositories
@@ -11,10 +12,10 @@ namespace LearningServer01.Repositories
         {
             _context = dbContext;
         }
-        public async Task<PlayerInfo> GetPlayerAsync(string nickName)
+
+        public async Task<PlayerInfo> GetPlayerAsync(string id)
         {
-            return await _context.Players
-                .FirstOrDefaultAsync(p => p.ID == nickName);
+            return await _context.Players.FirstOrDefaultAsync(p => p.ID == id);
         }
 
         public async Task<bool> AddPlayerAsync(PlayerInfo info)
@@ -29,6 +30,30 @@ namespace LearningServer01.Repositories
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<bool> AddGold(string userId, int amount)
+        {
+            return await _context.Players
+                .Where(p => p.ID == userId)
+                .ExecuteUpdateAsync(setters =>
+                    setters.SetProperty(p => p.Gold, p => p.Gold + amount)) > 0;
+        }
+
+        public async Task<bool> AddWood(string userId, int amount)
+        {
+            return await _context.Players
+                .Where(p => p.ID == userId)
+                .ExecuteUpdateAsync(setters =>
+                    setters.SetProperty(p => p.Wood, p => p.Wood + amount)) > 0;
+        }
+
+        public async Task<bool> AddFood(string userId, int amount)
+        {
+            return await _context.Players
+                .Where(p => p.ID == userId)
+                .ExecuteUpdateAsync(setters =>
+                    setters.SetProperty(p => p.Food, p => p.Food + amount)) > 0;
         }
     }
 }
