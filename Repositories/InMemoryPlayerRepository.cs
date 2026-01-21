@@ -1,52 +1,62 @@
-﻿namespace LearningServer01.Repositories
-{
-    public class InMemoryPlayerRepository : IPlayerRepository
-    {
-        Dictionary<string, PlayerInfo> _db = new Dictionary<string, PlayerInfo>()
-        {
-            ["YunSeon"] = new PlayerInfo()
-            {
-                ID = "ttok14",
-                Level = 51,
-                Gold = 1000,
-            }
-        };
+//namespace LearningServer01.Repositories
+//{
+//    public class InMemoryPlayerRepository : IPlayerRepository
+//    {
+//        Dictionary<string, PlayerInfo> _db = new Dictionary<string, PlayerInfo>()
+//        {
+//            ["YunSeon"] = new PlayerInfo()
+//            {
+//                ID = "ttok14",
+//                Level = 51,
+//                Gold = 1000,
+//            }
+//        };
 
-        public async Task<PlayerInfo> GetPlayerAsync(string nickname)
-        {
-            await Task.Delay(1000);
+//        public async Task<PlayerInfo> GetPlayerAsync(string nickname)
+//        {
+//            await Task.Delay(1000);
 
-            _db.TryGetValue(nickname, out var info);
-            if (info == null)
-                return null;
-            return info;
-        }
+//            _db.TryGetValue(nickname, out var info);
+//            if (info == null)
+//                return null;
+//            return info;
+//        }
 
-        public async Task<bool> AddPlayerAsync(PlayerInfo info)
-        {
-            await Task.Delay(1000);
+//        public async Task<bool> AddPlayerAsync(PlayerInfo info)
+//        {
+//            await Task.Delay(1000);
 
-            if (_db.ContainsKey(info.ID))
-                return false;
+//            if (_db.ContainsKey(info.ID))
+//                return false;
 
-            _db.Add(info.ID, info);
+//            _db.Add(info.ID, info);
 
-            return true;
-        }
+//            return true;
+//        }
 
-        public async Task<bool> AddGold(string userId, int amount)
-        {
-            return false;
-        }
+//        public async Task<bool> AddGold(string userId, int amount)
+//        {
+//            return false;
+//        }
 
-        public async Task<bool> AddWood(string userId, int amount)
-        {
-            return false;
-        }
+//        public async Task<bool> AddWood(string userId, int amount)
+//        {
+//            return false;
+//        }
 
-        public async Task<bool> AddFood(string userId, int amount)
-        {
-            return false;
-        }
-    }
-}
+//        public async Task<bool> AddFood(string userId, int amount)
+//        {
+//            return false;
+//        }
+
+//        public async Task<long> CreateStructure(string userId, int tableId, float positionX, float positionZ, float rotationY)
+//        {
+//            return -1;
+//        }
+
+//        public Task<bool> DestroyStructure(string userId, long uid)
+//        {
+//            throw new NotImplementedException();
+//        }
+//    }
+//}

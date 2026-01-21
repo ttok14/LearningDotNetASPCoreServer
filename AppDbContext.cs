@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+using LearningServer01.Data;
+using Microsoft.EntityFrameworkCore;
 
-namespace LearningServer01.Data
+namespace LearningServer01
 {
     public class AppDbContext : DbContext
     {
@@ -8,8 +9,8 @@ namespace LearningServer01.Data
         {
 
         }
-        
-        // Players 테이블 데이터 
+
         public DbSet<PlayerInfo> Players { get; set; }
+        public DbSet<StructureInfo> Structures { get; set; }
     }
 }

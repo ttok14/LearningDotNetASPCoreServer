@@ -11,7 +11,7 @@ namespace LearningServer01
     public class Program
     {
         public static void Main(string[] args)
-        {
+        { 
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -27,7 +27,7 @@ namespace LearningServer01
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            #region ====:: DB ÀÎÁõ ¼³Á¤ ::====
+            #region ====:: DB ì¸ì¦ ì„¤ì • ::====
             string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             if (string.IsNullOrEmpty(connectionString))
             {
@@ -40,7 +40,7 @@ namespace LearningServer01
             }
             #endregion
 
-            #region ====:: JWT ÀÎÁõ ¼­ºñ½º µî·Ï ::====
+            #region ====:: JWT ì¸ì¦ ì„œë¹„ìŠ¤ ë“±ë¡ ::====
             var jwtSettings = builder.Configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["SecretKey"];
             var key = Encoding.UTF8.GetBytes(secretKey);
@@ -68,7 +68,7 @@ namespace LearningServer01
 
             var app = builder.Build();
 
-            /// ¹Ìµé¿ş¾î ¼³Á¤ ½ÃÀÛ 
+            /// ë¯¸ë“¤ì›¨ì–´ ì„¤ì • ì‹œì‘ 
 
 
             // Configure the HTTP request pipeline.
@@ -80,15 +80,15 @@ namespace LearningServer01
 
             app.UseHttpsRedirection();
 
-            // ¾Æ·¡´Â È£Ãâ ¼ø¼­°¡ Áß¿ä. È£Ãâ ¼øÀ¸·Î Ã³¸®
+            // ì•„ë˜ëŠ” í˜¸ì¶œ ìˆœì„œê°€ ì¤‘ìš”. í˜¸ì¶œ ìˆœìœ¼ë¡œ ì²˜ë¦¬
 
-            // Authentication ÀÌ Authorization º¸´Ù ¾Õ¿¡ À§Ä¡ÇØ¾ßÇÔ
-            // Authentication : ³Ê ´©±¸³Ä ? 
+            // Authentication ì´ Authorization ë³´ë‹¤ ì•ì— ìœ„ì¹˜í•´ì•¼í•¨
+            // Authentication : ë„ˆ ëˆ„êµ¬ëƒ ? 
             app.UseAuthentication();
-            // Authorization : ±×·¡¼­ ³Ê ¿©±â µé¾î°¥ ±ÇÇÑ ÀÖ¾î? 
+            // Authorization : ê·¸ë˜ì„œ ë„ˆ ì—¬ê¸° ë“¤ì–´ê°ˆ ê¶Œí•œ ìˆì–´? 
             app.UseAuthorization();
 
-            // ¿Ã Åë°ú¸é ÄÁÆ®·Ñ·¯·Î ¿¬°á
+            // ì˜¬ í†µê³¼ë©´ ì»¨íŠ¸ë¡¤ëŸ¬ë¡œ ì—°ê²°
             app.MapControllers();
 
             app.Run();

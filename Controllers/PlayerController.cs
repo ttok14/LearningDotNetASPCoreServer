@@ -1,4 +1,4 @@
-﻿using LearningServer01.Repositories;
+using LearningServer01.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using JNetwork;
 using Microsoft.AspNetCore.Identity.Data;
@@ -6,11 +6,15 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using LearningServer01.Data;
 
 namespace LearningServer01.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    // 
+    [Authorize]
     public class PlayerController : ControllerBase
     {
         private readonly IPlayerRepository _repository;
@@ -25,8 +29,11 @@ namespace LearningServer01.Controllers
         }
 
         [HttpPost(nameof(Register))]
+        [AllowAnonymous]
         public async Task<Res_RegisterAccount> Register([FromBody] Req_RegisterAccount req)
         {
+            Console.WriteLine(nameof(Register));
+
             var res = new Res_RegisterAccount();
 
             if (req == null)
@@ -48,6 +55,7 @@ namespace LearningServer01.Controllers
                 return res;
             }
 
+            // 신규회원 기본 세팅값
             var isSuccess = await _repository.AddPlayerAsync(new PlayerInfo()
             {
                 ID = req.AccountID,
@@ -61,7 +69,8 @@ namespace LearningServer01.Controllers
                 SkillID03 = 12,
                 SpellID01 = 22,
                 SpellID02 = 23,
-                SpellID03 = 24
+                SpellID03 = 24,
+                Structures = DefaultStructures(req.AccountID)
             });
 
             if (isSuccess == false)
@@ -87,8 +96,11 @@ namespace LearningServer01.Controllers
         //}
 
         [HttpPost(nameof(Login))]
+        [AllowAnonymous]
         public async Task<Res_Login> Login([FromBody] Req_Login req)
         {
+            Console.WriteLine(nameof(Login));
+
             var res = new Res_Login();
 
             if (req == null)
@@ -121,6 +133,15 @@ namespace LearningServer01.Controllers
             res.Food = user.Food;
             res.SkillIDs = new[] { user.SkillID01, user.SkillID02, user.SkillID03 };
             res.SpellIDs = new[] { user.SpellID01, user.SpellID02, user.SpellID03 };
+            res.Structures = user.Structures.Select(t => new StructureItem()
+            {
+                UID = t.UID,
+                TableID = t.TableID,
+                Level = t.Level,
+                PositionX = t.PositionX,
+                PositionZ = t.PositionZ,
+                RotationY = t.RotationY
+            }).ToList();
 
             return res;
         }
@@ -128,6 +149,8 @@ namespace LearningServer01.Controllers
         [HttpPost(nameof(CheatAddGold))]
         public async Task<Res_CheatAddGold> CheatAddGold([FromBody] Req_CheatAddGold req)
         {
+            Console.WriteLine(nameof(CheatAddGold));
+
             var res = new Res_CheatAddGold();
 
             if (req == null)
@@ -140,7 +163,7 @@ namespace LearningServer01.Controllers
 
             if (string.IsNullOrEmpty(userId))
             {
-                res.Result = ERROR_CODE.FAIL_ETC;
+                res.Result = ERROR_CODE.FAIL_UNKNOWN;
                 return res;
             }
 
@@ -154,7 +177,7 @@ namespace LearningServer01.Controllers
 
             if (await _repository.AddGold(userId, req.Amount) == false)
             {
-                res.Result = ERROR_CODE.FAIL_ETC;
+                res.Result = ERROR_CODE.FAIL_UNKNOWN;
                 return res;
             }
 
@@ -167,6 +190,8 @@ namespace LearningServer01.Controllers
         [HttpPost(nameof(CheatAddWood))]
         public async Task<Res_CheatAddWood> CheatAddWood([FromBody] Req_CheatAddWood req)
         {
+            Console.WriteLine(nameof(CheatAddWood));
+
             var res = new Res_CheatAddWood();
 
             if (req == null)
@@ -179,7 +204,7 @@ namespace LearningServer01.Controllers
 
             if (string.IsNullOrEmpty(userId))
             {
-                res.Result = ERROR_CODE.FAIL_ETC;
+                res.Result = ERROR_CODE.FAIL_UNKNOWN;
                 return res;
             }
 
@@ -193,7 +218,7 @@ namespace LearningServer01.Controllers
 
             if (await _repository.AddWood(userId, req.Amount) == false)
             {
-                res.Result = ERROR_CODE.FAIL_ETC;
+                res.Result = ERROR_CODE.FAIL_UNKNOWN;
                 return res;
             }
 
@@ -206,6 +231,8 @@ namespace LearningServer01.Controllers
         [HttpPost(nameof(CheatAddFood))]
         public async Task<Res_CheatAddFood> CheatAddFood([FromBody] Req_CheatAddFood req)
         {
+            Console.WriteLine(nameof(CheatAddFood));
+
             var res = new Res_CheatAddFood();
 
             if (req == null)
@@ -218,7 +245,7 @@ namespace LearningServer01.Controllers
 
             if (string.IsNullOrEmpty(userId))
             {
-                res.Result = ERROR_CODE.FAIL_ETC;
+                res.Result = ERROR_CODE.FAIL_INVALID_USER;
                 return res;
             }
 
@@ -232,7 +259,7 @@ namespace LearningServer01.Controllers
 
             if (await _repository.AddFood(userId, req.Amount) == false)
             {
-                res.Result = ERROR_CODE.FAIL_ETC;
+                res.Result = ERROR_CODE.FAIL_UNKNOWN;
                 return res;
             }
 
@@ -241,6 +268,118 @@ namespace LearningServer01.Controllers
 
             return res;
         }
+
+        [HttpPost(nameof(ChangeSkill))]
+        [Authorize]
+        public async Task<Res_ChangeSkill> ChangeSkill(Req_ChangeSkill req)
+        {
+            var res = new Res_ChangeSkill();
+
+            if (req == null)
+            {
+                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
+                return res;
+            }
+
+            var userId = GetUserID();
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                res.Result = ERROR_CODE.FAIL_INVALID_USER;
+                return res;
+            }
+
+            bool isSuccess = await _repository.ChangeSkill(userId, req.SkillSet, req.SpellSet);
+
+            if (isSuccess == false)
+            {
+                res.Result = ERROR_CODE.FAIL_UNKNOWN;
+                return res;
+            }
+
+            res.Result = ERROR_CODE.SUCCESS;
+
+            return res;
+        }
+
+        [HttpPost(nameof(CreateStructure))]
+        [Authorize]
+        public async Task<Res_CreateStructure> CreateStructure(Req_CreateStructure req)
+        {
+            Console.WriteLine(nameof(CreateStructure));
+
+            var res = new Res_CreateStructure();
+
+            if (req == null)
+            {
+                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
+                return res;
+            }
+
+            var userId = GetUserID();
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                res.Result = ERROR_CODE.FAIL_INVALID_USER;
+                return res;
+            }
+
+            var result = await _repository.CreateStructure(userId, req.TableID, req.PositionX, req.PositionZ, req.RotationY);
+            if (result.uid < 0)
+            {
+                if (result.uid == -1)
+                    res.Result = ERROR_CODE.CREATE_STRUCTURE_FAIL_01;
+                else if (result.uid == -2)
+                    res.Result = ERROR_CODE.CREATE_STRUCTURE_FAIL_02;
+                else res.Result = ERROR_CODE.FAIL_UNKNOWN;
+
+                return res;
+            }
+
+            res.Result = ERROR_CODE.SUCCESS;
+            res.RemainedGold = result.remainedGold;
+            res.RemainedWood = result.remainedWood;
+            res.RemainedFood = result.remainedFood;
+            res.UID = result.uid;
+
+            return res;
+        }
+
+        [HttpPost(nameof(DestroyStructure))]
+        [Authorize]
+        public async Task<Res_DestroyStructure> DestroyStructure(Req_DestroyStructure req)
+        {
+            Console.WriteLine(nameof(DestroyStructure));
+
+            var res = new Res_DestroyStructure();
+
+            if (req == null)
+            {
+                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
+                return res;
+            }
+
+            var userId = GetUserID();
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                res.Result = ERROR_CODE.FAIL_INVALID_USER;
+                return res;
+            }
+
+            bool isSuccess = await _repository.DestroyStructure(userId, req.UID);
+            if (isSuccess == false)
+            {
+                res.Result = ERROR_CODE.FAIL_UNKNOWN;
+                return res;
+            }
+
+            res.Result = ERROR_CODE.SUCCESS;
+
+            return res;
+        }
+
+        //----------------------------------------------------------------------------//
 
         private string CreateToken(string userId)
         {
@@ -277,6 +416,43 @@ namespace LearningServer01.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
+        }
+
+        private List<StructureInfo> DefaultStructures(string userId)
+        {
+            return new List<StructureInfo>()
+            {
+                new StructureInfo()
+                {
+                    TableID = 156, Level = 1, OwnerID = userId,
+                    PositionX = 3.3f, PositionZ = 4.6f, RotationY = -90
+                },
+                new StructureInfo()
+                {
+                    TableID = 163, Level = 1, OwnerID = userId,
+                    PositionX = 22.5f, PositionZ = 4.7f, RotationY = -180
+                },
+                new StructureInfo()
+                {
+                    TableID = 157, Level = 1, OwnerID = userId,
+                    PositionX = 33.3f, PositionZ = 3.5f, RotationY = -180
+                },
+                new StructureInfo()
+                {
+                    TableID = 372, Level = 1, OwnerID = userId,
+                    PositionX = 8f, PositionZ = 17f, RotationY = -90
+                },
+                new StructureInfo()
+                {
+                    TableID = 144, Level = 1, OwnerID = userId,
+                    PositionX = 21.32f, PositionZ = 28.56f, RotationY = -180
+                },
+                new StructureInfo()
+                {
+                    TableID = 145, Level = 1, OwnerID = userId,
+                    PositionX = 31.04f, PositionZ = 27.6f, RotationY = -180
+                },
+            };
         }
     }
 }
