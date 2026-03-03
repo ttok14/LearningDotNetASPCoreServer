@@ -10,8 +10,17 @@ namespace LearningServer01
         [Key]
         public string ID { get; set; }
         public string Password { get; set; }
+        public string StatusMsg { get; set; }
+
+        public string Nickname { get; set; }
 
         public int Level { get; set; }
+
+        public int Bounty { get; set; }
+
+        public long EquippedHeroItemUID { get; set; }
+
+        public int StrengthStat { get; set; }
 
         public int Gold { get; set; }
         public int Wood { get; set; }
@@ -25,6 +34,10 @@ namespace LearningServer01
         public int SpellID02 { get; set; }
         public int SpellID03 { get; set; }
 
-        public List<StructureInfo> Structures { get; set; } = new List<StructureInfo>();
+        public List<UserItem> InventoryItems { get; set; } = new List<UserItem>();
+
+        public List<DeploymentSlot> DeploymentSlots { get; set; } = new List<DeploymentSlot>();
+
+        public List<EntityItemInfo> PlacedEntities { get; set; } = new List<EntityItemInfo>();
     }
 }

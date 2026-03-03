@@ -5,13 +5,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using LearningServer01.TableService;
 
 namespace LearningServer01
 {
     public class Program
     {
         public static void Main(string[] args)
-        { 
+        {
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -26,6 +27,10 @@ namespace LearningServer01
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            #region ====:: 커스텀 싱글턴 등록 ::====
+            builder.Services.AddSingleton<ITableService, TableDataService>();
+            #endregion
 
             #region ====:: DB 인증 설정 ::====
             string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -68,8 +73,23 @@ namespace LearningServer01
 
             var app = builder.Build();
 
-            /// 미들웨어 설정 시작 
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
 
+                try
+                {
+                    var tableService = services.GetRequiredService<ITableService>();
+                }
+                catch (Exception ex)
+                {
+                    Console.BackgroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"치명적인 오류 발생 | 테이블 서비스 에러 : {ex.ToString()}");
+                    throw;
+                }
+            }
+
+            /// 미들웨어 설정 시작 
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

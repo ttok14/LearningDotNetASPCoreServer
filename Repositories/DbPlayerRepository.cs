@@ -18,7 +18,9 @@ namespace LearningServer01.Repositories
         public async Task<PlayerInfo> GetPlayerAsync(string id)
         {
             return await _context.Players
-                .Include(p => p.Structures)
+                .Include(p => p.PlacedEntities)
+                .Include(p => p.InventoryItems)
+                .Include(p => p.DeploymentSlots)
                 .FirstOrDefaultAsync(p => p.ID == id);
         }
 
@@ -41,7 +43,7 @@ namespace LearningServer01.Repositories
             return await _context.Players
                 .Where(p => p.ID == userId)
                 .ExecuteUpdateAsync(setters =>
-                    setters.SetProperty(p => p.Gold, p => p.Gold + amount)) > 0;
+                setters.SetProperty(p => p.Gold, p => p.Gold + amount)) > 0;
         }
 
         public async Task<bool> AddWood(string userId, int amount)
@@ -49,7 +51,7 @@ namespace LearningServer01.Repositories
             return await _context.Players
                 .Where(p => p.ID == userId)
                 .ExecuteUpdateAsync(setters =>
-                    setters.SetProperty(p => p.Wood, p => p.Wood + amount)) > 0;
+                setters.SetProperty(p => p.Wood, p => p.Wood + amount)) > 0;
         }
 
         public async Task<bool> AddFood(string userId, int amount)
@@ -57,7 +59,7 @@ namespace LearningServer01.Repositories
             return await _context.Players
                 .Where(p => p.ID == userId)
                 .ExecuteUpdateAsync(setters =>
-                    setters.SetProperty(p => p.Food, p => p.Food + amount)) > 0;
+                setters.SetProperty(p => p.Food, p => p.Food + amount)) > 0;
         }
 
         public async Task<bool> ChangeSkill(
@@ -140,7 +142,7 @@ namespace LearningServer01.Repositories
             }
             #endregion
 
-            var newStructure = new StructureInfo()
+            var newStructure = new EntityItemInfo()
             {
                 OwnerID = userId,
                 Level = 1,
@@ -150,9 +152,9 @@ namespace LearningServer01.Repositories
                 TableID = tableId
             };
 
-            await _context.Structures.AddAsync(newStructure);
+            await _context.Entities.AddAsync(newStructure);
 
-            /// 여기서 <see cref="StructureInfo.UID"/> 가 자동으로 내부적으로
+            /// 여기서 <see cref="EntityItemInfo.UID"/> 가 자동으로 내부적으로
             /// 들어간다함. (EF+DB 협업)
             await _context.SaveChangesAsync();
 
@@ -168,7 +170,7 @@ namespace LearningServer01.Repositories
             if (exist == false)
                 return false;
 
-            return await _context.Structures
+            return await _context.Entities
                 .Where(s => s.OwnerID == userId && s.UID == uid)
                 .ExecuteDeleteAsync() > 0;
         }

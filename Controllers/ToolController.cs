@@ -18,7 +18,7 @@ namespace LearningServer01.Controllers
         {
             try
             {
-                await _context.Structures.ExecuteDeleteAsync();
+                await _context.Entities.ExecuteDeleteAsync();
                 await _context.Players.ExecuteDeleteAsync();
 
                 return Ok(true);

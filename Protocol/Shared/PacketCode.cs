@@ -4,6 +4,8 @@ namespace JNetwork
     // 패킷 아이디  
     public enum Code : ushort
     {
+        CheckVersion = 100,
+
         RegisterAccount = 110,
         Login = 120,
 
@@ -21,11 +23,16 @@ namespace JNetwork
     {
         SUCCESS = 0,
 
-        FAIL_INVALID_TOKEN = 5,
+        FAIL_SERVER_ERROR = 5,
 
-        FAIL_UNKNOWN = 10,
+        FAIL_MAINTENANCE = 8,
+        FAIL_INVALID_APP_VERSION = 10,
 
-        FAIL_INVALID_USER = 20,
+        FAIL_INVALID_TOKEN = 20,
+
+        FAIL_UNKNOWN = 30,
+
+        FAIL_INVALID_USER = 40,
 
         FAIL_EMPTY_REQUEST = 50,
 

@@ -15,6 +15,15 @@ namespace JNetwork
 
     #region ====:: 요청 DTO ::====
 
+    public class Req_CheckVersion : WebPacketBase
+    {
+        public override Code ID => Code.CheckVersion;
+        public override string GetURLPath() => "Player/CheckVersion";
+
+        public string Platform { get; set; }
+        public string ClientAppVersion { get; set; }
+    }
+
     public class Req_RegisterAccount : WebPacketBase
     {
         public override Code ID => Code.RegisterAccount;
@@ -89,6 +98,17 @@ namespace JNetwork
 
     #region ====:: 응답 DTO ::====
 
+    public class Res_CheckVersion : WebResponseBase
+    {
+        public string Message { get; set; }
+
+        public string LatestAppVersion { get; set; }
+        public string CdnBaseUrl { get; set; }
+        public string RedirectStoreUrl { get; set; }
+
+        public string TableMetadataHash { get; set; }
+    }
+
     public class Res_RegisterAccount : WebResponseBase
     {
     }
@@ -96,6 +116,14 @@ namespace JNetwork
     public class Res_Login : WebResponseBase
     {
         public string Token { get; set; }
+        public string OwnerId { get; set; }
+        public string Nickname { get; set; }
+        public string StatusMsg { get; set; }
+
+        public int Bounty { get; set; }
+        public long EquippedHeroItemUID { get; set; }
+
+        public int StrengthStat { get; set; }
 
         public int Level { get; set; }
 
@@ -106,7 +134,9 @@ namespace JNetwork
         public int[] SkillIDs { get; set; }
         public int[] SpellIDs { get; set; }
 
-        public List<StructureItem> Structures { get; set; }
+        public List<EntityNetData> Entities { get; set; }
+        public List<UserItemNetData> Items { get; set; }
+        public List<DeploymentSlotNetData> DeploymentSlots { get; set; }
     }
 
     public class Res_CheatAddGold : WebResponseBase

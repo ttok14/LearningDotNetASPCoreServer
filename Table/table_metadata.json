@@ -1,0 +1,101 @@
+{
+  "Version": "260220_180322",
+  "TotalHash": "8e8a3e225b819f4b87deb216ffd4c8c122f2450687d75b13fd3fc10cbd7cc12e",
+  "Files": [
+    {
+      "Name": "ActionPointTable",
+      "Hash": "e44e74e78c0f78742102bf4eb9cfe9c3d0132d0f6185b7e087ad4ef7a2e43253",
+      "ByteSize": 312
+    },
+    {
+      "Name": "AnimationTable",
+      "Hash": "70aace8f2194e483d684168e03c240e7baae02c83ac51f1846adb3be566ef244",
+      "ByteSize": 1209
+    },
+    {
+      "Name": "AssetMetaTable",
+      "Hash": "05f13240800dd95cc053234dc9c3db44060f190213a302d174c595bc9ef777c8",
+      "ByteSize": 36049
+    },
+    {
+      "Name": "AudioTable",
+      "Hash": "185fc0a80af2f5dc5c176a81b6f460e8b72979361759ed81204b7828634446e4",
+      "ByteSize": 9934
+    },
+    {
+      "Name": "CharacterTable",
+      "Hash": "bad223d2122d572686a11bbc16ff1a597b300c2ffbad13724ed429e0c2423c75",
+      "ByteSize": 2438
+    },
+    {
+      "Name": "CurrencyTable",
+      "Hash": "c8dcb77fe1de27a4af391b358221bc03a9f6176cb69c8920a461c18455201827",
+      "ByteSize": 294
+    },
+    {
+      "Name": "EntityTable",
+      "Hash": "2719153c9ede931e813d39fc6aadd44efb16f2901384a78e4ccd0570bb3b3bfb",
+      "ByteSize": 70014
+    },
+    {
+      "Name": "FieldItemTable",
+      "Hash": "c37f95786a2c290cd5cd5e718f6487939e9b41dddb9edc82d5c83017cde85d60",
+      "ByteSize": 69
+    },
+    {
+      "Name": "ItemTable",
+      "Hash": "bb74d0bfd8f97dd4e7e108b0cdc7333c1400936ef7ceac3ab18d75191851c4b4",
+      "ByteSize": 2045
+    },
+    {
+      "Name": "KillStreakTable",
+      "Hash": "f6ae3c2c54dc07b4330526ce27ce57bfba906b63f890ab93855e5ee0a2e027db",
+      "ByteSize": 1294
+    },
+    {
+      "Name": "PetTable",
+      "Hash": "5885cd8ea81655ce45c7dfc01c7c1193d2b26e5a2ecf05e8b5fa2671ff3f6c4e",
+      "ByteSize": 45
+    },
+    {
+      "Name": "ProjectileTable",
+      "Hash": "994b338253ff4a667e111a2bd721593c28b1f6d1ee3c406c86cbc25ac7cf9e55",
+      "ByteSize": 19823
+    },
+    {
+      "Name": "PurchaseCostTable",
+      "Hash": "dd193485f278c247fdffafce652b8b464caf1deac6616209d2fb48f86144a145",
+      "ByteSize": 1216
+    },
+    {
+      "Name": "ResourceTable",
+      "Hash": "a3dcea925a1a34b0c255ab4750a96dcc8a65faca632809a91835193c18146303",
+      "ByteSize": 39
+    },
+    {
+      "Name": "SkillTable",
+      "Hash": "275fba7abbcc02b48088db87d7b8be1ca340b1ceb77c28d91bfe1dff3503ce13",
+      "ByteSize": 18699
+    },
+    {
+      "Name": "StatTable",
+      "Hash": "3a0207a4f40da657fe7c56fd68657aaee895ffdb941f54df265322a58f1d8b13",
+      "ByteSize": 8344
+    },
+    {
+      "Name": "StructureTable",
+      "Hash": "8cae675bf6cf8d4426eec8688a6bc9488dc3379deec514dc56714c3d98c5f478",
+      "ByteSize": 7853
+    },
+    {
+      "Name": "WaveSequenceTable",
+      "Hash": "7d449bd202f0fc70a326c12dec8a01dc7ee72b8e66680938bb5a4ba9253ac590",
+      "ByteSize": 19632
+    },
+    {
+      "Name": "WaveTable",
+      "Hash": "673f945f3110b445d1810a5ff7915b674400e9baa5f5d4d855bc73e87eccc521",
+      "ByteSize": 101
+    }
+  ]
+}

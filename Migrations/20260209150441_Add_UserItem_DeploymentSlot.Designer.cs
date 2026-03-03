@@ -4,6 +4,7 @@ using LearningServer01;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearningServer01.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260209150441_Add_UserItem_DeploymentSlot")]
+    partial class Add_UserItem_DeploymentSlot
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,9 +76,6 @@ namespace LearningServer01.Migrations
                     b.Property<float>("RotationY")
                         .HasColumnType("float");
 
-                    b.Property<string>("SpecificDataJson")
-                        .HasColumnType("longtext");
-
                     b.Property<int>("TableID")
                         .HasColumnType("int");
 
@@ -91,24 +91,14 @@ namespace LearningServer01.Migrations
                     b.Property<string>("ID")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<int>("Bounty")
-                        .HasColumnType("int");
-
                     b.Property<int>("Food")
                         .HasColumnType("int");
 
                     b.Property<int>("Gold")
                         .HasColumnType("int");
 
-                    b.Property<int>("HeroTableID")
-                        .HasColumnType("int");
-
                     b.Property<int>("Level")
                         .HasColumnType("int");
-
-                    b.Property<string>("Nickname")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -132,13 +122,6 @@ namespace LearningServer01.Migrations
                     b.Property<int>("SpellID03")
                         .HasColumnType("int");
 
-                    b.Property<string>("StatusMsg")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("StrengthStat")
-                        .HasColumnType("int");
-
                     b.Property<int>("Wood")
                         .HasColumnType("int");
 
@@ -155,10 +138,10 @@ namespace LearningServer01.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("UID"));
 
-                    b.Property<int>("ItemType")
+                    b.Property<int>("InventorySlotIdx")
                         .HasColumnType("int");
 
-                    b.Property<int>("Level")
+                    b.Property<int>("ItemType")
                         .HasColumnType("int");
 
                     b.Property<string>("OwnerID")
