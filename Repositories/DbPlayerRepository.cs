@@ -30,7 +30,7 @@ namespace LearningServer01.Repositories
 
         void IPlayerRepository.RemoveEntity(EntityItemInfo entity)
         {
-            _context.Set<EntityItemInfo>().Remove(entity);
+            _context.Entities.Remove(entity);
         }
 
         void IPlayerRepository.AddPlayer(PlayerInfo info)
@@ -38,9 +38,14 @@ namespace LearningServer01.Repositories
             _context.Players.Add(info);
         }
 
-        Task<bool> IPlayerRepository.IsPlayerExistAsync(string id)
+        Task<bool> IPlayerRepository.IsPlayerExistByIDAsync(string id)
         {
             return _context.Players.AnyAsync(p => p.ID == id);
+        }
+
+        Task<bool> IPlayerRepository.IsPlayerExistByNickname(string nickname)
+        {
+            return _context.Players.AnyAsync(p => p.Nickname == nickname);
         }
 
         public async Task<PlayerInfo> GetPlayerBasicAsync(string id, bool isReadonly = false)

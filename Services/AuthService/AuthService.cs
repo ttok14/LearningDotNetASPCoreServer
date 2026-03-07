@@ -1,4 +1,7 @@
+using JNetwork;
 using LearningServer01.Config;
+using LearningServer01.Repositories;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -10,10 +13,12 @@ namespace LearningServer01.Services.AuthService
     public class AuthService : IAuthService
     {
         JwtSettings _jwtSettings;
+        IPlayerRepository _repo;
 
-        public AuthService(IOptions<JwtSettings> options)
+        public AuthService(IOptions<JwtSettings> options, IPlayerRepository repo)
         {
             _jwtSettings = options.Value;
+            _repo = repo;
         }
 
         string IAuthService.CreateToken(string userId)
@@ -54,6 +59,22 @@ namespace LearningServer01.Services.AuthService
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
+        }
+
+        async Task<(ERROR_CODE errCode, string token, PlayerInfo? loggedInPlayerInfo)> IAuthService.LoginAsync(string id, string userPassword)
+        {
+            var player = await _repo.GetPlayerFullAsync(id, isReadonly: true);
+
+            if (player == null)
+                return (ERROR_CODE.FAIL_INVALID_USER, string.Empty, null);
+
+            var @this = (IAuthService)this;
+            if ((@this).VerifyPassword(userPassword, player.Password) == false)
+                return (ERROR_CODE.LOGIN_PW_WRONG, string.Empty, null);
+
+            var token = @this.CreateToken(id);
+
+            return (ERROR_CODE.SUCCESS, token, player);
         }
 
         bool IAuthService.VerifyPassword(string rawPassword, string hashedPassword)

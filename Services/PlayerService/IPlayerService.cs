@@ -1,12 +1,17 @@
-using JNetwork;
 using GameDB;
+using JNetwork;
+using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 namespace LearningServer01
 {
     public interface IPlayerService
     {
-        Task<(ERROR_CODE errCode, PlayerInfo newUser)> RegisterNewPlayerAsync(string id, string password);
-        Task<(ERROR_CODE errCode, PlayerInfo opponent)> SearchOpponentAsync(PlayerInfo player);
+        Task<(ERROR_CODE errCode, PlayerInfo? newUser)> RegisterNewPlayerAsync(string id, string password);
+
+        Task<ERROR_CODE> EnterNicknameAsync(string id, string nickname);
+
+        Task<(ERROR_CODE errCode, PlayerInfo? myInfo)> EnterHomeAsync(string id);
+        Task<(ERROR_CODE errCode, PlayerInfo? myInfo, PlayerInfo? opponentInfo)> SearchOpponentAsync(string id);
 
 #if DEBUG
         Task<(ERROR_CODE errCode, int remainedCurrency)> CheatCurrency(string id, E_CurrencyType currencyType);

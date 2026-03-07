@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace LearningServer01.Services.PlayerService
 {
@@ -418,32 +419,87 @@ namespace LearningServer01.Services.PlayerService
             return await _repo.SaveChangesAsync() ? ERROR_CODE.SUCCESS : ERROR_CODE.FAIL_DATABASE_SAVE;
         }
 
-        public async Task<(ERROR_CODE, PlayerInfo?)> SearchOpponentAsync(PlayerInfo player)
+        public async Task<ERROR_CODE> EnterNicknameAsync(string id, string nicknameToEnter)
         {
-            if (player == null)
+            if (string.IsNullOrEmpty(nicknameToEnter))
+                return (ERROR_CODE.NICKNAME_EMPTY);
+
+            if (nicknameToEnter.Length < 4)
+                return (ERROR_CODE.NICKNAME_TOO_SHORT);
+
+            if (nicknameToEnter.Length > 12)
+                return (ERROR_CODE.NICKNAME_TOO_LONG);
+
+            if (char.IsDigit(nicknameToEnter[0]))
+                return (ERROR_CODE.NICKNAME_START_WITH_DIGIT);
+
+            if (Regex.IsMatch(nicknameToEnter, @"^[a-zA-Z가-힣0-9]*$") == false)
+                return ERROR_CODE.NICKNAME_INVALID_CHARACTER;
+
+            // TODO : 비속어 체크
+            // if(비속어 버퍼?가져와서 ㄱㄱ)
+
+            // 중복체크
+            if (await _repo.IsPlayerExistByNickname(nicknameToEnter))
+                return (ERROR_CODE.NICKNAME_DUPLICATE);
+
+            var me = await _repo.GetPlayerBasicAsync(id);
+
+            if (me == null)
+                return (ERROR_CODE.FAIL_INVALID_USER);
+
+            // 해당 유저의 닉네임이 이미 설정돼있음(이 패킷 자체가 호출되면 안됨)
+            if (string.IsNullOrEmpty(me.Nickname) == false)
+                return (ERROR_CODE.NICKNAME_ALREADY_SET);
+
+            me.Nickname = nicknameToEnter;
+
+            return await _repo.SaveChangesAsync() ? ERROR_CODE.SUCCESS : ERROR_CODE.FAIL_DATABASE_SAVE;
+        }
+
+        public async Task<(ERROR_CODE errCode, PlayerInfo? myInfo)> EnterHomeAsync(string id)
+        {
+            var me = await _repo.GetPlayerFullAsync(id, isReadonly: true);
+
+            if (me == null)
                 return (ERROR_CODE.FAIL_INVALID_USER, null);
+
+            return (ERROR_CODE.SUCCESS, me);
+        }
+
+        public async Task<(ERROR_CODE errCode, PlayerInfo? myInfo, PlayerInfo? opponentInfo)> SearchOpponentAsync(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return (ERROR_CODE.FAIL_INVALID_USER, null, null);
+
+            // 내 정보 조회
+            var me = await _repo.GetPlayerFullAsync(id);
+
+            if (me == null)
+                return (ERROR_CODE.FAIL_INVALID_USER, null, null);
 
             // 전투 입장료 체크
             int entryCost = Temp_BattleCost.MatchEntryGold;
 
-            if (player.Gold < entryCost)
-                return (ERROR_CODE.NOT_ENOUGH_CURRENCY, null);
+            if (me.Gold < entryCost)
+                return (ERROR_CODE.NOT_ENOUGH_CURRENCY, null, null);
 
-            var opponent = await _repo.GetRandomOpponentAsync(excludeUserId: player.ID);
+            var opponent = await _repo.GetRandomOpponentAsync(excludeUserId: me.ID);
 
             if (opponent == null)
-                return (ERROR_CODE.SEARCH_OPPONENT_NOT_FOUND, null);
+                return (ERROR_CODE.SEARCH_OPPONENT_NOT_FOUND, null, null);
 
-            int remainedGold = Math.Max(player.Gold - entryCost, 0);
+            int remainedGold = Math.Max(me.Gold - entryCost, 0);
 
             // 재화 차감 적용
-            player.Gold = remainedGold;
+            me.Gold = remainedGold;
 
             var saveRes = await _repo.SaveChangesAsync() ? ERROR_CODE.SUCCESS : ERROR_CODE.FAIL_DATABASE_SAVE;
 
-            if (saveRes == ERROR_CODE.SUCCESS)
-                return (saveRes, opponent);
-            else return (saveRes, null);
+            if (saveRes != ERROR_CODE.SUCCESS)
+                return (saveRes, null, null);
+
+            return (saveRes, me, opponent);
         }
 
         public async Task<(ERROR_CODE errCode, PlayerInfo? newUser)> RegisterNewPlayerAsync(string id, string password)
@@ -451,7 +507,7 @@ namespace LearningServer01.Services.PlayerService
             if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(password))
                 return (ERROR_CODE.REGISTER_ID_OR_PW_EMPTY, null);
 
-            bool isDuplicate = await _repo.IsPlayerExistAsync(id);
+            bool isDuplicate = await _repo.IsPlayerExistByIDAsync(id);
             if (isDuplicate)
             {
                 return (ERROR_CODE.REGISTER_FAIL_DUPLICATE, null);
@@ -484,7 +540,7 @@ namespace LearningServer01.Services.PlayerService
                 Password = BCrypt.Net.BCrypt.HashPassword(password),
                 MapName = GetRandomMap(),
                 Level = 1,
-                Nickname = $"TestNick_{id}",
+                Nickname = string.Empty,
                 StatusMsg = "제발 쳐들어오지 마세요 ㅜㅜ",
                 Bounty = 1234543,
                 StrengthStat = 959595,
@@ -536,6 +592,7 @@ namespace LearningServer01.Services.PlayerService
                     Console.WriteLine($"[ERROR] {exp.ToString()}");
 
                     await transaction.RollbackAsync();
+
                     return (ERROR_CODE.EXCEPTION, null);
                 }
             }

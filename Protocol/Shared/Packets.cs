@@ -44,6 +44,14 @@ namespace JNetwork
         public string Password { get; set; }
     }
 
+    public class Req_EnterNickname : WebPacketBase
+    {
+        public override Code ID => Code.EnterNickname;
+        public override string GetURLPath() => "Player/EnterNickname";
+
+        public string Nickname { get; set; }
+    }
+
     public class Req_EnterHome : WebPacketBase
     {
         public override Code ID => Code.EnterHome;
@@ -214,6 +222,11 @@ namespace JNetwork
         public List<EntityNetData> Entities { get; set; }
         public List<UserItemNetData> Items { get; set; }
         public List<DeploymentSlotNetData> DeploymentSlots { get; set; }
+    }
+
+    public class Res_EnterNickname : WebResponseBase
+    {
+
     }
 
     public class Res_EnterHome : WebResponseBase

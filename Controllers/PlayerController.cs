@@ -1,17 +1,8 @@
-using GameDB;
 using JNetwork;
-using LearningServer01.Data;
 using LearningServer01.Repositories;
-using LearningServer01.Services.TableService;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.ComponentModel;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using Microsoft.Extensions.Options;
 using LearningServer01.Services.AuthService;
 
@@ -25,27 +16,21 @@ namespace LearningServer01.Controllers
         private readonly IPlayerService _playerService;
         private readonly IAuthService _authService;
         private readonly IPlayerRepository _repository;
-        private readonly ILockService _lockService;
         private readonly ITableService _tableService;
-        private readonly ILogger<PlayerController> _logger;
         private readonly GameSettings _gameSettings;
 
         string? GetUserID() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         public PlayerController(
-            ILogger<PlayerController> logger,
             IPlayerService playerService,
             IAuthService authService,
             IPlayerRepository repository,
-            ILockService lockService,
             IOptions<GameSettings> options,
             ITableService tableService)
         {
-            _logger = logger;
             _playerService = playerService;
             _authService = authService;
             _repository = repository;
-            _lockService = lockService;
             _tableService = tableService;
             _gameSettings = options.Value;
         }
@@ -111,41 +96,33 @@ namespace LearningServer01.Controllers
             return new Res_RegisterAccount() { Result = ERROR_CODE.SUCCESS };
         }
 
-        //[HttpGet("{userId}")]
-        //public async Task<ActionResult<PlayerInfo>> Get(string userId)
-        //{
-        //    var info = await _repository.GetPlayer(userId);
-
-        //    if (info == null)
-        //        return NotFound($"{userId}님은 존재하지 않습니다.");
-
-        //    return Ok(info);
-        //}
-
         [HttpPost(nameof(Login))]
         [AllowAnonymous]
         public async Task<Res_Login> Login([FromBody] Req_Login req)
         {
-            _logger.LogInformation(nameof(Login));
-
-            _logger.LogInformation($"★ Login 요청 수신 | AccountID=[{req?.AccountID}], Password=[{(req?.Password != null ? "있음" : "null")}]");
-
             if (req == null)
                 return new Res_Login() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
 
-            var user = await _repository.GetPlayerFullAsync(req.AccountID);
+            var sres = await _authService.LoginAsync(req.AccountID, req.Password);
 
-            if (user == null)
-                return new Res_Login() { Result = ERROR_CODE.LOGIN_FAIL_USER_NOT_EXIST };
+            if (sres.errCode != ERROR_CODE.SUCCESS)
+                return new Res_Login() { Result = sres.errCode };
 
-            bool isValid = _authService.VerifyPassword(req.Password, user.Password);
+            return sres.loggedInPlayerInfo.ToLoginResponse(sres.token, _tableService);
+        }
 
-            if (isValid == false)
-                return new Res_Login() { Result = ERROR_CODE.LOGIN_PW_WRONG };
+        [HttpPost(nameof(EnterNickname))]
+        [Authorize]
+        public async Task<Res_EnterNickname> EnterNickname([FromBody] Req_EnterNickname req)
+        {
+            var userId = GetUserID();
 
-            var authToken = _authService.CreateToken(user.ID);
+            if (string.IsNullOrEmpty(userId))
+                return new Res_EnterNickname() { Result = ERROR_CODE.FAIL_INVALID_USER };
 
-            return user.ToLoginResponse(authToken, _tableService);
+            var sres = await _playerService.EnterNicknameAsync(userId, req.Nickname);
+
+            return new Res_EnterNickname() { Result = sres };
         }
 
         [HttpPost(nameof(EnterHome))]
@@ -157,12 +134,12 @@ namespace LearningServer01.Controllers
             if (string.IsNullOrEmpty(userId))
                 return new Res_EnterHome() { Result = ERROR_CODE.FAIL_INVALID_USER };
 
-            var player = await _repository.GetPlayerFullAsync(userId);
+            var sres = await _playerService.EnterHomeAsync(userId);
 
-            if (player == null)
-                return new Res_EnterHome() { Result = ERROR_CODE.FAIL_INVALID_USER };
+            if (sres.errCode != ERROR_CODE.SUCCESS)
+                return new Res_EnterHome() { Result = sres.errCode };
 
-            return player.ToEnterHomeResponse(_tableService);
+            return sres.myInfo.ToEnterHomeResponse(_tableService);
         }
 
         [HttpPost(nameof(SearchOpponent))]
@@ -174,19 +151,14 @@ namespace LearningServer01.Controllers
             if (string.IsNullOrEmpty(userId))
                 return new Res_SearchOpponent() { Result = ERROR_CODE.FAIL_INVALID_USER };
 
-            // 내 정보 조회
-            var me = await _repository.GetPlayerFullAsync(userId);
-            if (me == null)
-                return new Res_SearchOpponent() { Result = ERROR_CODE.FAIL_INVALID_USER };
+            var sres = await _playerService.SearchOpponentAsync(userId);
 
-            var searchRes = await _playerService.SearchOpponentAsync(me);
+            if (sres.errCode != ERROR_CODE.SUCCESS)
+                return new Res_SearchOpponent() { Result = sres.errCode };
 
-            if (searchRes.errCode != ERROR_CODE.SUCCESS)
-                return new Res_SearchOpponent() { Result = searchRes.errCode };
+            var opponent = sres.opponentInfo;
 
-            var opponent = searchRes.opponent;
-
-            return me.ToSearchOpponentResponse(opponent, _tableService);
+            return sres.myInfo.ToSearchOpponentResponse(opponent, _tableService);
         }
 
 #if DEBUG
@@ -216,7 +188,7 @@ namespace LearningServer01.Controllers
 
         [HttpPost(nameof(EquipDeploymentSlot))]
         [Authorize]
-        public async Task<Res_EquipDeploymentSlot> EquipDeploymentSlot(Req_EquipDeploymentSlot req)
+        public async Task<Res_EquipDeploymentSlot> EquipDeploymentSlot([FromBody] Req_EquipDeploymentSlot req)
         {
             if (req == null)
                 return new Res_EquipDeploymentSlot() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
@@ -477,101 +449,6 @@ namespace LearningServer01.Controllers
             res.Result = await _playerService.UnequipHeroAsync(userId);
 
             return res;
-        }
-
-        //----------------------------------------------------------------------------//
-
-        StructureSpecificData ToStructureSpecificData(StructureTable tableData)
-        {
-            return ToStructureSpecificData(null, null, tableData);
-        }
-
-        StructureSpecificData ToStructureSpecificData(List<EntityGarrisonInfo> garrisons, List<UserItem> items, StructureTable tableData)
-        {
-            if (tableData.GarrisonCount == 0 && tableData.StructureType != E_StructureType.Spawner)
-                return null;
-
-            var data = new StructureSpecificData();
-
-            // 테이블상 Garrison 주둔이 가능한다면
-            // 일단 리스트는 기본으로 할당해줌 
-            int garrisonCount = (int)tableData.GarrisonCount;
-            if (garrisonCount > 0)
-            {
-                data.GarrisonedItemUIDs = Enumerable.Repeat(0L, garrisonCount).ToList();
-                data.GarrisonedEntityTableIDs = Enumerable.Repeat(0, garrisonCount).ToList();
-            }
-
-            // Garrison 데이터가 존재하는 경우 처리
-            if (garrisons != null)
-            {
-                for (int i = 0; i < garrisons.Count; i++)
-                {
-                    var g = garrisons[i];
-                    if (g.Type == S_GarrisonSlotType.None)
-                    {
-                        _logger.LogError($"[ERROR] Garrison 타입이 None 이 될 수 없음");
-                        continue;
-                    }
-
-                    var targetGarrisonedItem = items.Find(t => t.UID == g.EquippedItemUID);
-                    EntityTable entityData = null;
-                    ItemTable itemData = null;
-
-                    bool isValid =
-                        g != null &&
-                        g.UID != 0 &&
-                        g.EquippedItemUID != 0 &&
-                        g.OwnerEntityUID != 0 &&
-                        targetGarrisonedItem != null &&
-                        _tableService.Container.ItemTable_data.TryGetValue((uint)targetGarrisonedItem.TableID, out itemData) &&
-                        itemData.Type == E_ItemType.Squad &&
-                        _tableService.Container.EntityTable_data.TryGetValue(itemData.RefID, out entityData) &&
-                        entityData.EntityType == E_EntityType.Character &&
-                        _tableService.Container.CharacterTable_data.ContainsKey(entityData.DetailTableID);
-
-                    if (isValid == false)
-                    {
-                        // 만약 targetGarrisonedItem 이 Null 이라면 Garrison 주둔군 데이터는 존재하나
-                        // 실제로 이 주둔군 Item 의 UID 가 ItemList에 없는 케이스 - 데이터 싱크 깨짐 의심
-                        _logger.LogError($"[ERROR] SpecificData 조립1 검증 데이터 오류 | IsNull : {g == null} , UID : {g.UID} , EquippedItemUID : {g.EquippedItemUID} , OwnerEntityUID : {g.OwnerEntityUID} , GarrisonedItemIsNull : {targetGarrisonedItem == null}");
-                        continue;
-                    }
-
-                    if (g.Type == S_GarrisonSlotType.Garrison)
-                    {
-                        if (g.SlotIdx < 0 || g.SlotIdx >= garrisonCount)
-                        {
-                            _logger.LogError($"[ERROR] SpecificData 조립2 검증 데이터 오류 | SlotIdx 의 인덱스 범위 벗어남 | Idx : {g.SlotIdx} , MaxCount : {garrisonCount}");
-                            continue;
-                        }
-
-                        if (data.GarrisonedItemUIDs[g.SlotIdx] != 0)
-                        {
-                            // 루프중 설정이 된게 또 설정 시도하려고 하고있음. 인풋 데이터에 중복 체크
-                            _logger.LogError($"[ERROR] SpecificData 조립3 검증 데이터 오류 | 인풋 주둔 데이터의 SlotIdx 중복 에러");
-                            continue;
-                        }
-
-                        data.GarrisonedItemUIDs[g.SlotIdx] = g.EquippedItemUID;
-                        data.GarrisonedEntityTableIDs[g.SlotIdx] = (int)entityData.ID;
-                    }
-                    else if (g.Type == S_GarrisonSlotType.Spawn)
-                    {
-                        if (data.SpawningItemUID != 0)
-                        {
-                            // 루프중 설정이 된게 또 설정 시도하려고 하고있음. 인풋 데이터에 중복 체크
-                            _logger.LogError($"[ERROR] SpecificData 조립4 검증 데이터 오류 | 인풋 주둔 데이터의 SlotIdx 중복 에러");
-                            continue;
-                        }
-
-                        data.SpawningItemUID = g.EquippedItemUID;
-                        data.SpawningItemTableID = (int)itemData.ID;
-                    }
-                }
-            }
-
-            return data;
         }
     }
 }

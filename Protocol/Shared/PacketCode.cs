@@ -9,6 +9,8 @@ namespace JNetwork
         RegisterAccount = 110,
         Login = 120,
 
+        EnterNickname = 130,
+
         CheatAddCurrency = 200,
 
         EquipDeploymentSlot = 300,
@@ -81,6 +83,15 @@ namespace JNetwork
         LOGIN_FAIL_USER_NOT_EXIST = 1035,
         LOGIN_ID_WRONG = 1030,
         LOGIN_PW_WRONG = 1040,
+
+        NICKNAME_EMPTY = 1044,
+        NICKNAME_TOO_SHORT = 1045,
+        NICKNAME_TOO_LONG = 1046,
+        NICKNAME_ALREADY_SET = 1047,
+        NICKNAME_DUPLICATE = 1048,
+        NICKNAME_INVALID_CHARACTER = 1049,
+        NICKNAME_START_WITH_DIGIT = 1050,
+        NICKNAME_RULE_VIOLATION = 1051,
         #endregion
 
         #region ====:: 재화 관련 (1500~1600) ::====

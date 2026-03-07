@@ -1,4 +1,5 @@
 using JNetwork;
+using LearningServer01.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Data.Common;
@@ -19,10 +20,12 @@ namespace LearningServer01.Repositories
         Task<PlayerInfo> GetPlayerFullAsync(string id, bool isReadonly = false);
 
         void AddPlayer(PlayerInfo info);
-        Task<bool> IsPlayerExistAsync(string id);
+        Task<bool> IsPlayerExistByIDAsync(string id);
+        Task<bool> IsPlayerExistByNickname(string nickname);
 
         Task<(ERROR_CODE errCode, long uid, int remainedGold, int remainedWood, int remainedFood)> CreateStructure(string userId, int tableId, float positionX, float positionZ, float rotationY, GameDB.E_CurrencyType costType, int costPrice);
-        Task<bool> DestroyStructure(string userId, long uid);
+
+        public void RemoveEntity(EntityItemInfo entity);
 
         Task<PlayerInfo> GetRandomOpponentAsync(string excludeUserId);
     }
