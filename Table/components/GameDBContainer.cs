@@ -10,6 +10,7 @@ namespace GameDB
 	public class GameDBContainer
 	{
 		public Dictionary<uint, ActionPointTable> ActionPointTable_data = new Dictionary<uint, ActionPointTable>();
+		public Dictionary<uint, AIProfileTable> AIProfileTable_data = new Dictionary<uint, AIProfileTable>();
 		public Dictionary<uint, AnimationTable> AnimationTable_data = new Dictionary<uint, AnimationTable>();
 		public Dictionary<string, AssetMetaTable> AssetMetaTable_data = new Dictionary<string, AssetMetaTable>();
 		public Dictionary<uint, AudioTable> AudioTable_data = new Dictionary<uint, AudioTable>();
@@ -52,6 +53,44 @@ namespace GameDB
 			for (int i = 0; i < tableCount; i++)
 			{
 				var table = MessagePackSerializer.Deserialize<ActionPointTable>(ref reader);
+				dicTables.Add(table.ID, table);
+			}
+			return dicTables;
+		}
+	}
+
+	[MessagePackObject]
+	public class AIProfileTable
+	{
+		[Key(0)]
+		public uint ID;
+		[Key(1)]
+		public E_AITargetingRuleType RuleType;
+		[Key(2)]
+		public int MaxScore_Dist;
+		[Key(3)]
+		public int MaxScore_Aggro;
+		[Key(4)]
+		public int CharacterScore;
+		[Key(5)]
+		public int StructureScore;
+		[Key(6)]
+		public int DefenseStructureScore;
+		[Key(7)]
+		public int ObstacleStructureScore;
+		[Key(8)]
+		public float RescanInterval;
+		[Key(9)]
+		public float AdditionalTargetSwitchMargin;
+
+		public static Dictionary<uint, AIProfileTable> Deserialize(ref byte[] _readBytes)
+		{
+			Dictionary<uint, AIProfileTable> dicTables = new Dictionary<uint, AIProfileTable>();
+			MessagePackReader reader = new MessagePackReader(new System.ReadOnlyMemory<byte>(_readBytes));
+			int tableCount = MessagePackSerializer.Deserialize<int>(ref reader);
+			for (int i = 0; i < tableCount; i++)
+			{
+				var table = MessagePackSerializer.Deserialize<AIProfileTable>(ref reader);
 				dicTables.Add(table.ID, table);
 			}
 			return dicTables;
@@ -148,18 +187,24 @@ namespace GameDB
 		[Key(1)]
 		public E_CharacterType CharacterType;
 		[Key(2)]
-		public E_SizeType CharacterSize;
+		public E_ZoneType ZoneType;
 		[Key(3)]
-		public uint[] SkillSet;
+		public uint AIProfileID;
 		[Key(4)]
-		public float ShadowScale;
+		public E_SizeType CharacterSize;
 		[Key(5)]
-		public string MoveTrailFXKey;
+		public uint[] SkillSet;
 		[Key(6)]
-		public bool UseIK;
+		public float ShadowScale;
 		[Key(7)]
-		public uint DropItemID;
+		public string ActiveFXKey;
 		[Key(8)]
+		public string MoveTrailFXKey;
+		[Key(9)]
+		public bool UseIK;
+		[Key(10)]
+		public uint DropItemID;
+		[Key(11)]
 		public string FootStepAudioKey;
 
 		public static Dictionary<uint, CharacterTable> Deserialize(ref byte[] _readBytes)
@@ -288,9 +333,11 @@ namespace GameDB
 		[Key(5)]
 		public E_ItemGradeType GradeType;
 		[Key(6)]
-		public int MaxQuantity;
+		public int SquadCount;
 		[Key(7)]
-		public int RefID;
+		public int MaxQuantity;
+		[Key(8)]
+		public uint RefID;
 
 		public static Dictionary<uint, ItemTable> Deserialize(ref byte[] _readBytes)
 		{
@@ -384,74 +431,84 @@ namespace GameDB
 		[Key(7)]
 		public E_ProjectileMovementType MovementType;
 		[Key(8)]
-		public float MaxDistance;
+		public float MovementValue01;
 		[Key(9)]
-		public E_ProjectileCollisionActivationType CollisionActivationType;
+		public float MovementValue02;
 		[Key(10)]
-		public E_CollisionRangeType CollisionRangeType;
+		public float MovementValue03;
 		[Key(11)]
-		public float CollisionAreaRange;
+		public float MaxDistance;
 		[Key(12)]
-		public float CollisionForce;
+		public E_ProjectileCollisionActivationType CollisionActivationType;
 		[Key(13)]
-		public uint PreferMaxTargetCount;
+		public E_CollisionRangeType CollisionRangeType;
 		[Key(14)]
-		public float MoveSpeed;
+		public float CollisionAreaRange;
 		[Key(15)]
-		public float StatReductionMinRatio;
+		public float CollisionForce;
 		[Key(16)]
-		public float StatReductionRatioPerHit;
+		public uint PreferMaxTargetCount;
 		[Key(17)]
-		public bool AllowMultiHit;
+		public float MoveSpeed;
 		[Key(18)]
-		public string[] HitSFXKeys;
+		public float StatReductionMinRatio;
 		[Key(19)]
-		public bool AudioRandomPick;
+		public float StatReductionRatioPerHit;
 		[Key(20)]
-		public string[] HitFXKeys;
+		public bool AllowMultiHit;
 		[Key(21)]
-		public bool HitDestroy;
+		public string[] HitSFXKeys;
 		[Key(22)]
-		public E_UpdateLogicType UpdateLogicType;
+		public bool AudioRandomPick;
 		[Key(23)]
-		public float UpdateLogicValue;
+		public string[] HitFXKeys;
 		[Key(24)]
-		public E_ActionType ProcessActionType;
+		public bool HitDestroy;
 		[Key(25)]
-		public E_RefDataType ProcessRefType;
+		public E_UpdateLogicType UpdateLogicType;
 		[Key(26)]
-		public uint ProcessRefID;
+		public float UpdateLogicValue;
 		[Key(27)]
-		public string ProcessRefKey;
+		public E_ActionType ProcessActionType;
 		[Key(28)]
-		public float ProcessValue01;
+		public E_ZoneType ProcessActionTargetZoneType;
 		[Key(29)]
-		public float ProcessValue02;
+		public E_RefDataType ProcessRefType;
 		[Key(30)]
-		public float ProcessValue03;
+		public uint ProcessRefID;
 		[Key(31)]
-		public bool ProcessDestroy;
+		public string ProcessRefKey;
 		[Key(32)]
-		public string[] ProcessSFXKeys;
+		public float ProcessValue01;
 		[Key(33)]
-		public string[] ProcessFXKeys;
+		public float ProcessValue02;
 		[Key(34)]
-		public E_ActionType EndActionType;
+		public float ProcessValue03;
 		[Key(35)]
-		public E_RefDataType EndRefType;
+		public bool ProcessDestroy;
 		[Key(36)]
-		public uint EndRefID;
+		public string[] ProcessSFXKeys;
 		[Key(37)]
-		public string EndRefKey;
+		public string[] ProcessFXKeys;
 		[Key(38)]
-		public float EndValue01;
+		public E_ActionType EndActionType;
 		[Key(39)]
-		public float EndValue02;
+		public E_ZoneType EndActionTargetZoneType;
 		[Key(40)]
-		public float EndValue03;
+		public E_RefDataType EndRefType;
 		[Key(41)]
-		public string[] EndSFXKeys;
+		public uint EndRefID;
 		[Key(42)]
+		public string EndRefKey;
+		[Key(43)]
+		public float EndValue01;
+		[Key(44)]
+		public float EndValue02;
+		[Key(45)]
+		public float EndValue03;
+		[Key(46)]
+		public string[] EndSFXKeys;
+		[Key(47)]
 		public string[] EndFXKeys;
 
 		public static Dictionary<uint, ProjectileTable> Deserialize(ref byte[] _readBytes)
@@ -474,13 +531,13 @@ namespace GameDB
 		[Key(0)]
 		public uint ID;
 		[Key(1)]
-		public uint EntityID;
+		public E_PurchaseContentType ContentType;
 		[Key(2)]
-		public E_CurrencyType CostCurrencyType;
+		public uint RefID;
 		[Key(3)]
-		public uint CostPrice;
+		public E_CurrencyType CostCurrencyType;
 		[Key(4)]
-		public uint AcquireCount;
+		public uint CostPrice;
 
 		public static Dictionary<uint, PurchaseCostTable> Deserialize(ref byte[] _readBytes)
 		{
@@ -534,58 +591,60 @@ namespace GameDB
 		[Key(5)]
 		public string Description;
 		[Key(6)]
-		public E_SkillTriggerConditionType TriggerCondition;
+		public E_ZoneType TargetZoneType;
 		[Key(7)]
-		public E_SkillTriggerType TriggerType;
+		public E_SkillTriggerConditionType TriggerCondition;
 		[Key(8)]
-		public bool RequireFacingTarget;
+		public E_SkillTriggerType TriggerType;
 		[Key(9)]
-		public float CastingTime;
+		public bool RequireFacingTarget;
 		[Key(10)]
-		public string[] TriggerAudioKey;
+		public float CastingTime;
 		[Key(11)]
-		public bool AudioRandomPick;
+		public string[] TriggerAudioKey;
 		[Key(12)]
-		public string[] EffectKeys;
+		public bool AudioRandomPick;
 		[Key(13)]
-		public bool KillExecutor;
+		public string[] EffectKeys;
 		[Key(14)]
-		public string ProjectileKey;
+		public bool KillExecutor;
 		[Key(15)]
-		public uint ProjectileCount;
+		public string ProjectileKey;
 		[Key(16)]
-		public float CooldownTime;
+		public uint ProjectileCount;
 		[Key(17)]
-		public uint Cost;
+		public float CooldownTime;
 		[Key(18)]
-		public uint BaseDamage;
+		public uint Cost;
 		[Key(19)]
-		public float Range;
+		public uint BaseDamage;
 		[Key(20)]
-		public bool LookAtTarget;
+		public float Range;
 		[Key(21)]
-		public E_CollisionRangeType ImpactCollisionRangeType;
+		public bool LookAtTarget;
 		[Key(22)]
-		public float ImpactCollisionRange;
+		public E_CollisionRangeType ImpactCollisionRangeType;
 		[Key(23)]
-		public uint PreferMaxTargetCount;
+		public float ImpactCollisionRange;
 		[Key(24)]
-		public float ImpactCollisionForce;
+		public uint PreferMaxTargetCount;
 		[Key(25)]
-		public string[] ImpactSFXHitKeys;
+		public float ImpactCollisionForce;
 		[Key(26)]
-		public string[] ImpactFXHitKeys;
+		public string[] ImpactSFXHitKeys;
 		[Key(27)]
-		public E_SpellPositionType SpellStartPositionType;
+		public string[] ImpactFXHitKeys;
 		[Key(28)]
-		public Vector3 SpellStartOffset;
+		public E_SpellPositionType SpellStartPositionType;
 		[Key(29)]
-		public bool SpellStartOffsetRelative;
+		public Vector3 SpellStartOffset;
 		[Key(30)]
-		public E_SpellPositionType SpellEndPositionType;
+		public bool SpellStartOffsetRelative;
 		[Key(31)]
-		public Vector3 SpellEndOffset;
+		public E_SpellPositionType SpellEndPositionType;
 		[Key(32)]
+		public Vector3 SpellEndOffset;
+		[Key(33)]
 		public bool SpellEndOffsetRelative;
 
 		public static Dictionary<uint, SkillTable> Deserialize(ref byte[] _readBytes)
@@ -633,10 +692,6 @@ namespace GameDB
 		public float RotateSpeed;
 		[Key(13)]
 		public float ScanRange;
-		[Key(14)]
-		public float AggroWeight_Structure;
-		[Key(15)]
-		public float AggroWeight_Character;
 
 		public static Dictionary<uint, StatTable> Deserialize(ref byte[] _readBytes)
 		{
@@ -664,39 +719,39 @@ namespace GameDB
 		[Key(3)]
 		public string Description;
 		[Key(4)]
-		public string SoundKey;
+		public uint AIProfileID;
 		[Key(5)]
-		public string DestroyEffectKey;
+		public string SoundKey;
 		[Key(6)]
-		public uint[] SkillSet;
+		public string DestroyEffectKey;
 		[Key(7)]
-		public uint ActionPointGroupID;
+		public uint[] SkillSet;
 		[Key(8)]
-		public E_CurrencyType UpgradeCostCurrencyType;
+		public uint ActionPointGroupID;
 		[Key(9)]
-		public uint UpgradeCost;
+		public E_CurrencyType UpgradeCostCurrencyType;
 		[Key(10)]
-		public uint MaxLevel;
+		public uint UpgradeCost;
 		[Key(11)]
-		public uint ResidentCapacity;
+		public uint MaxLevel;
 		[Key(12)]
-		public E_ResourceType GenResourceType;
+		public uint ResidentCapacity;
 		[Key(13)]
-		public uint GenResourceID;
+		public E_ResourceType GenResourceType;
 		[Key(14)]
-		public uint GenResourceBaseAmount;
+		public uint GenResourceID;
 		[Key(15)]
-		public uint GenCurrencyGrowthPerLevel;
+		public uint GenResourceBaseAmount;
 		[Key(16)]
-		public float GenResourceInterval;
+		public uint GenCurrencyGrowthPerLevel;
 		[Key(17)]
-		public bool EnableSpawning;
+		public float GenResourceInterval;
 		[Key(18)]
 		public uint SpawnEntityIDOnCombat;
 		[Key(19)]
 		public float SpawnIntervalSeconds;
 		[Key(20)]
-		public uint[] GuardEntityIDs;
+		public uint GarrisonCount;
 
 		public static Dictionary<uint, StructureTable> Deserialize(ref byte[] _readBytes)
 		{

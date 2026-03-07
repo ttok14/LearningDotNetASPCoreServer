@@ -14,11 +14,13 @@ namespace LearningServer01
 
         public string Nickname { get; set; }
 
+        public string MapName { get; set; }
+
         public int Level { get; set; }
 
         public int Bounty { get; set; }
 
-        public long EquippedHeroItemUID { get; set; }
+        public long? EquippedHeroItemUID { get; set; }
 
         public int StrengthStat { get; set; }
 

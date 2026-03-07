@@ -22,5 +22,28 @@ namespace LearningServer01.Data
 
         [ForeignKey(nameof(OwnerID))]
         public PlayerInfo Owner { get; set; }
+
+        //--------------//
+
+        public void EquipItem(UserItem item)
+        {
+            if (item == null)
+            {
+                UnequipItem();
+                return;
+            }
+
+            EquippedItem = item;
+            EquippedItemUID = item.UID;
+        }
+
+        public void UnequipItem()
+        {
+            if (EquippedItemUID.HasValue == false)
+                return;
+
+            EquippedItemUID = null;
+            EquippedItem = null;
+        }
     }
 }

@@ -1,6 +1,6 @@
 {
-  "Version": "260220_180322",
-  "TotalHash": "8e8a3e225b819f4b87deb216ffd4c8c122f2450687d75b13fd3fc10cbd7cc12e",
+  "Version": "260306_125723",
+  "TotalHash": "38ccd30d38302a44debb5a1ece9e95959a7f2057c5f76d2483a5c4c366655882",
   "Files": [
     {
       "Name": "ActionPointTable",
@@ -8,24 +8,29 @@
       "ByteSize": 312
     },
     {
+      "Name": "AIProfileTable",
+      "Hash": "dac3063e8237a4533ee4eb7a199e5172347ffa2a8da345028a0c1727f7d625c5",
+      "ByteSize": 1825
+    },
+    {
       "Name": "AnimationTable",
-      "Hash": "70aace8f2194e483d684168e03c240e7baae02c83ac51f1846adb3be566ef244",
-      "ByteSize": 1209
+      "Hash": "0e1272945f758c05362285f323dea98a35dcc4f6ec99e104baf797f7f55dfbd1",
+      "ByteSize": 1342
     },
     {
       "Name": "AssetMetaTable",
-      "Hash": "05f13240800dd95cc053234dc9c3db44060f190213a302d174c595bc9ef777c8",
-      "ByteSize": 36049
+      "Hash": "08e5dc7ee44187a3128b63738d869f47d634c8e47f98c1af3b54007d688252a5",
+      "ByteSize": 38355
     },
     {
       "Name": "AudioTable",
-      "Hash": "185fc0a80af2f5dc5c176a81b6f460e8b72979361759ed81204b7828634446e4",
-      "ByteSize": 9934
+      "Hash": "c7040e30d7861f49d5619466925a5b1fd69bc3cba7cd370cb042f3bfa777be49",
+      "ByteSize": 10598
     },
     {
       "Name": "CharacterTable",
-      "Hash": "bad223d2122d572686a11bbc16ff1a597b300c2ffbad13724ed429e0c2423c75",
-      "ByteSize": 2438
+      "Hash": "d754a6c4ef899f39bc7d2d8c9a2c312c3f420d31bf2afe2853a1654f661ed412",
+      "ByteSize": 3545
     },
     {
       "Name": "CurrencyTable",
@@ -34,8 +39,8 @@
     },
     {
       "Name": "EntityTable",
-      "Hash": "2719153c9ede931e813d39fc6aadd44efb16f2901384a78e4ccd0570bb3b3bfb",
-      "ByteSize": 70014
+      "Hash": "3ca300f4e7f306721522f1de5e49b199113b80e6949e274ecc8bf7b1fb7febd0",
+      "ByteSize": 70494
     },
     {
       "Name": "FieldItemTable",
@@ -44,8 +49,8 @@
     },
     {
       "Name": "ItemTable",
-      "Hash": "bb74d0bfd8f97dd4e7e108b0cdc7333c1400936ef7ceac3ab18d75191851c4b4",
-      "ByteSize": 2045
+      "Hash": "0d663a6b75dcea91c826298434983f69b8fae31c7e421321fc9951ac3943150c",
+      "ByteSize": 2550
     },
     {
       "Name": "KillStreakTable",
@@ -59,13 +64,13 @@
     },
     {
       "Name": "ProjectileTable",
-      "Hash": "994b338253ff4a667e111a2bd721593c28b1f6d1ee3c406c86cbc25ac7cf9e55",
-      "ByteSize": 19823
+      "Hash": "66d4c463c000880d9c628b5e46e18537e8410b82a1d4e3e29559e5cefb41e9bb",
+      "ByteSize": 23765
     },
     {
       "Name": "PurchaseCostTable",
-      "Hash": "dd193485f278c247fdffafce652b8b464caf1deac6616209d2fb48f86144a145",
-      "ByteSize": 1216
+      "Hash": "dc5ee4a7ad7e9029840395e3472eff83fa6af281f9c9ed53d857c10ae15a589b",
+      "ByteSize": 2312
     },
     {
       "Name": "ResourceTable",
@@ -74,18 +79,18 @@
     },
     {
       "Name": "SkillTable",
-      "Hash": "275fba7abbcc02b48088db87d7b8be1ca340b1ceb77c28d91bfe1dff3503ce13",
-      "ByteSize": 18699
+      "Hash": "541a76b0f1fe96e491be47b600def4d8ab4dede0d8a77143509bbf1a86778617",
+      "ByteSize": 20682
     },
     {
       "Name": "StatTable",
-      "Hash": "3a0207a4f40da657fe7c56fd68657aaee895ffdb941f54df265322a58f1d8b13",
-      "ByteSize": 8344
+      "Hash": "b83bda08ff1a867a2d51134209215d6bd8080c7ac17315d5b0cf2aa5b7931fbd",
+      "ByteSize": 7392
     },
     {
       "Name": "StructureTable",
-      "Hash": "8cae675bf6cf8d4426eec8688a6bc9488dc3379deec514dc56714c3d98c5f478",
-      "ByteSize": 7853
+      "Hash": "b25d7f674ebc803561eca06c04e91e59cdc25356e8f7292a7d6e8f3f63380d1d",
+      "ByteSize": 8199
     },
     {
       "Name": "WaveSequenceTable",

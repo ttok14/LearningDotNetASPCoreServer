@@ -1,9 +1,10 @@
+using MessagePack;
 using MessagePack.Formatters;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MessagePack.Resolvers
+namespace LearningServer01.Services.TableService
 {
 	/// <summary>
 	/// Singleton version of CompositeResolver, which be able to register a collection of formatters and resolvers to a single instance.
@@ -44,7 +45,7 @@ namespace MessagePack.Resolvers
 		/// </param>
 		public void Register(params IFormatterResolver[] resolvers)
 		{
-			if (this.freezed)
+			if (freezed)
 			{
 				throw new InvalidOperationException("Register must call on startup(before use GetFormatter<T>).");
 			}
@@ -54,7 +55,7 @@ namespace MessagePack.Resolvers
 				throw new ArgumentNullException(nameof(resolvers));
 			}
 
-			this.formatters = Array.Empty<IMessagePackFormatter>();
+			formatters = Array.Empty<IMessagePackFormatter>();
 			this.resolvers = resolvers;
 		}
 

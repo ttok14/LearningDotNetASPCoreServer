@@ -73,9 +73,6 @@ namespace LearningServer01.Migrations
                     b.Property<float>("RotationY")
                         .HasColumnType("float");
 
-                    b.Property<string>("SpecificDataJson")
-                        .HasColumnType("longtext");
-
                     b.Property<int>("TableID")
                         .HasColumnType("int");
 
@@ -86,6 +83,33 @@ namespace LearningServer01.Migrations
                     b.ToTable("Entities");
                 });
 
+            modelBuilder.Entity("LearningServer01.EntityGarrisonInfo", b =>
+                {
+                    b.Property<long>("UID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("UID"));
+
+                    b.Property<long>("EquippedItemUID")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("OwnerEntityUID")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("SlotIdx")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("Type")
+                        .HasColumnType("tinyint unsigned");
+
+                    b.HasKey("UID");
+
+                    b.HasIndex("OwnerEntityUID");
+
+                    b.ToTable("EntityGarrisonInfo");
+                });
+
             modelBuilder.Entity("LearningServer01.PlayerInfo", b =>
                 {
                     b.Property<string>("ID")
@@ -94,17 +118,21 @@ namespace LearningServer01.Migrations
                     b.Property<int>("Bounty")
                         .HasColumnType("int");
 
+                    b.Property<long?>("EquippedHeroItemUID")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("Food")
                         .HasColumnType("int");
 
                     b.Property<int>("Gold")
                         .HasColumnType("int");
 
-                    b.Property<int>("HeroTableID")
-                        .HasColumnType("int");
-
                     b.Property<int>("Level")
                         .HasColumnType("int");
+
+                    b.Property<string>("MapName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Nickname")
                         .IsRequired()
@@ -155,9 +183,6 @@ namespace LearningServer01.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("UID"));
 
-                    b.Property<int>("ItemType")
-                        .HasColumnType("int");
-
                     b.Property<int>("Level")
                         .HasColumnType("int");
 
@@ -206,6 +231,17 @@ namespace LearningServer01.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("LearningServer01.EntityGarrisonInfo", b =>
+                {
+                    b.HasOne("LearningServer01.Data.EntityItemInfo", "OwnerStructure")
+                        .WithMany("Garrisons")
+                        .HasForeignKey("OwnerEntityUID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OwnerStructure");
+                });
+
             modelBuilder.Entity("LearningServer01.UserItem", b =>
                 {
                     b.HasOne("LearningServer01.PlayerInfo", "Owner")
@@ -215,6 +251,11 @@ namespace LearningServer01.Migrations
                         .IsRequired();
 
                     b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("LearningServer01.Data.EntityItemInfo", b =>
+                {
+                    b.Navigation("Garrisons");
                 });
 
             modelBuilder.Entity("LearningServer01.PlayerInfo", b =>

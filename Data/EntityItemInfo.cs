@@ -21,10 +21,7 @@ namespace LearningServer01.Data
         public float PositionZ { get; set; }
         public float RotationY { get; set; }
 
-        // 건물 : 가드배치정보 등, 엔티티 타입에 따라 달라지는
-        // 가변 데이터를 Json String 형태로 관리
-        // 없으면 Null 허용
-        public string? SpecificDataJson { get; set; }
+        public List<EntityGarrisonInfo> Garrisons { get; set; } = new List<EntityGarrisonInfo>();
 
         [ForeignKey(nameof(OwnerID))]
         public PlayerInfo Owner { get; set; }

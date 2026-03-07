@@ -1,14 +1,19 @@
-using LearningServer01.Repositories;
-using Microsoft.AspNetCore.Mvc;
+using GameDB;
 using JNetwork;
+using LearningServer01.Data;
+using LearningServer01.Repositories;
+using LearningServer01.Services.TableService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Authorization;
-using LearningServer01.Data;
-using GameDB;
+using Microsoft.Extensions.Options;
+using LearningServer01.Services.AuthService;
 
 namespace LearningServer01.Controllers
 {
@@ -17,34 +22,46 @@ namespace LearningServer01.Controllers
     [Authorize]
     public class PlayerController : ControllerBase
     {
+        private readonly IPlayerService _playerService;
+        private readonly IAuthService _authService;
         private readonly IPlayerRepository _repository;
-        private readonly IConfiguration _configuration;
+        private readonly ILockService _lockService;
         private readonly ITableService _tableService;
+        private readonly ILogger<PlayerController> _logger;
+        private readonly GameSettings _gameSettings;
 
         string? GetUserID() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        public PlayerController(IPlayerRepository repository, IConfiguration configuration, ITableService tableService)
+        public PlayerController(
+            ILogger<PlayerController> logger,
+            IPlayerService playerService,
+            IAuthService authService,
+            IPlayerRepository repository,
+            ILockService lockService,
+            IOptions<GameSettings> options,
+            ITableService tableService)
         {
+            _logger = logger;
+            _playerService = playerService;
+            _authService = authService;
             _repository = repository;
-            _configuration = configuration;
+            _lockService = lockService;
             _tableService = tableService;
+            _gameSettings = options.Value;
         }
 
         [HttpPost(nameof(CheckVersion))]
         [AllowAnonymous]
         public async Task<Res_CheckVersion> CheckVersion([FromBody] Req_CheckVersion req)
         {
-            Console.WriteLine(nameof(CheckVersion));
-
-            var res = new Res_CheckVersion();
-
             if (req == null)
-            {
-                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
-                return res;
-            }
+                return new Res_CheckVersion() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
 
-            var validAppVersion = _configuration.GetValue<string>("GameSettings:AppVersion");
+            // TODO : Service 레이어에서 구현할 것
+            // 근데 어떤 Service 를 추가해야하지 이런건?
+            // 관리자같은 느낌인데 
+            var res = new Res_CheckVersion();
+            var validAppVersion = _gameSettings.AppVersion;
 
             if (req.ClientAppVersion != validAppVersion)
             {
@@ -57,7 +74,7 @@ namespace LearningServer01.Controllers
                 return res;
             }
 
-            bool isMaintenance = _configuration.GetValue<bool>("GameSettings:IsMaintenance");
+            bool isMaintenance = _gameSettings.IsMaintenance;
             if (isMaintenance)
             {
                 res.Result = ERROR_CODE.FAIL_MAINTENANCE;
@@ -68,7 +85,7 @@ namespace LearningServer01.Controllers
 
             res.Result = ERROR_CODE.SUCCESS;
 
-            res.CdnBaseUrl = _configuration.GetValue<string>("GameSettings:CdnBaseUrl");
+            res.CdnBaseUrl = _gameSettings.CdnBaseUrl;
             res.LatestAppVersion = validAppVersion;
             res.TableMetadataHash = _tableService.Metadata.TotalHash;
 
@@ -79,67 +96,19 @@ namespace LearningServer01.Controllers
         [AllowAnonymous]
         public async Task<Res_RegisterAccount> Register([FromBody] Req_RegisterAccount req)
         {
-            Console.WriteLine(nameof(Register));
-
-            var res = new Res_RegisterAccount();
-
             if (req == null)
-            {
-                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
-                return res;
-            }
+                return new Res_RegisterAccount() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
 
             if (string.IsNullOrEmpty(req.AccountID) || string.IsNullOrEmpty(req.Password))
-            {
-                res.Result = ERROR_CODE.REGISTER_FAIL_INVALID;
-                return res;
-            }
-
-            var duplicate = await _repository.GetPlayerAsync(req.AccountID);
-            if (duplicate != null)
-            {
-                res.Result = ERROR_CODE.REGISTER_FAIL_DUPLICATE;
-                return res;
-            }
-
-            var defaultEntities = DefaultEntities(req.AccountID);
-            var defaultItems = DefaultItems(req.AccountID);
-            var defaultDeploymentSlots = DefaultDeploymentSlots(req.AccountID, defaultItems);
+                return new Res_RegisterAccount() { Result = ERROR_CODE.REGISTER_FAIL_INVALID };
 
             // 신규회원 기본 세팅값
-            var isSuccess = await _repository.AddPlayerAsync(new PlayerInfo()
-            {
-                ID = req.AccountID,
-                Password = BCrypt.Net.BCrypt.HashPassword(req.Password),
-                Level = 1,
-                Nickname = $"TestNick_{req.AccountID}",
-                StatusMsg = "제발 쳐들어오지 마세요 ㅜㅜ",
-                Bounty = 1234543,
-                EquippedHeroItemUID = 1,
-                StrengthStat = 959595,
-                Gold = 10000,
-                Wood = 10000,
-                Food = 10000,
-                SkillID01 = 1,
-                SkillID02 = 15,
-                SkillID03 = 12,
-                SpellID01 = 22,
-                SpellID02 = 23,
-                SpellID03 = 24,
-                PlacedEntities = defaultEntities,
-                InventoryItems = defaultItems,
-                DeploymentSlots = defaultDeploymentSlots
-            });
+            var sres = await _playerService.RegisterNewPlayerAsync(req.AccountID, req.Password);
 
-            if (isSuccess == false)
-            {
-                res.Result = ERROR_CODE.REGISTER_FAIL_UNKNOWN;
-                return res;
-            }
+            if (sres.errCode != ERROR_CODE.SUCCESS)
+                return new Res_RegisterAccount() { Result = sres.errCode };
 
-            res.Result = ERROR_CODE.SUCCESS;
-
-            return res;
+            return new Res_RegisterAccount() { Result = ERROR_CODE.SUCCESS };
         }
 
         //[HttpGet("{userId}")]
@@ -157,287 +126,184 @@ namespace LearningServer01.Controllers
         [AllowAnonymous]
         public async Task<Res_Login> Login([FromBody] Req_Login req)
         {
-            Console.WriteLine(nameof(Login));
+            _logger.LogInformation(nameof(Login));
 
-            var res = new Res_Login();
+            _logger.LogInformation($"★ Login 요청 수신 | AccountID=[{req?.AccountID}], Password=[{(req?.Password != null ? "있음" : "null")}]");
 
             if (req == null)
-            {
-                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
-                return res;
-            }
+                return new Res_Login() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
 
-            var user = await _repository.GetPlayerAsync(req.AccountID);
+            var user = await _repository.GetPlayerFullAsync(req.AccountID);
 
             if (user == null)
-            {
-                res.Result = ERROR_CODE.LOGIN_FAIL_USER_NOT_EXIST;
-                return res;
-            }
+                return new Res_Login() { Result = ERROR_CODE.LOGIN_FAIL_USER_NOT_EXIST };
 
-            bool isValid = BCrypt.Net.BCrypt.Verify(req.Password, user.Password);
+            bool isValid = _authService.VerifyPassword(req.Password, user.Password);
 
             if (isValid == false)
-            {
-                res.Result = ERROR_CODE.LOGIN_FAIL_PW_WRONG;
-                return res;
-            }
+                return new Res_Login() { Result = ERROR_CODE.LOGIN_PW_WRONG };
 
-            res.Result = ERROR_CODE.SUCCESS;
-            res.OwnerId = req.AccountID;
-            res.Token = CreateToken(user.ID);
-            res.Nickname = user.Nickname;
-            res.StatusMsg = user.StatusMsg;
-            res.Bounty = user.Bounty;
-            res.EquippedHeroItemUID = user.EquippedHeroItemUID;
-            res.StrengthStat = user.StrengthStat;
-            res.Level = user.Level;
-            res.Gold = user.Gold;
-            res.Wood = user.Wood;
-            res.Food = user.Food;
-            res.SkillIDs = new[] { user.SkillID01, user.SkillID02, user.SkillID03 };
-            res.SpellIDs = new[] { user.SpellID01, user.SpellID02, user.SpellID03 };
-            res.Entities = user.PlacedEntities.Select(t => new EntityNetData()
-            {
-                OwnerID = t.OwnerID,
-                UID = t.UID,
-                TableID = t.TableID,
-                Level = t.Level,
-                PositionX = t.PositionX,
-                PositionZ = t.PositionZ,
-                RotationY = t.RotationY
-            }).ToList();
-            res.Items = user.InventoryItems.Select(t => new UserItemNetData()
-            {
-                UID = t.UID,
-                TableID = t.TableID,
-                Quantity = t.Quantity
-            }).ToList();
+            var authToken = _authService.CreateToken(user.ID);
 
-            res.DeploymentSlots = user.DeploymentSlots.Select(t => new DeploymentSlotNetData()
-            {
-                SlotIdx = t.SlotIdx,
-                EquippedItemUID = t.EquippedItemUID ?? 0
-            }).ToList();
+            return user.ToLoginResponse(authToken, _tableService);
+        }
 
-            return res;
+        [HttpPost(nameof(EnterHome))]
+        [Authorize]
+        public async Task<Res_EnterHome> EnterHome([FromBody] Req_EnterHome req)
+        {
+            var userId = GetUserID();
+
+            if (string.IsNullOrEmpty(userId))
+                return new Res_EnterHome() { Result = ERROR_CODE.FAIL_INVALID_USER };
+
+            var player = await _repository.GetPlayerFullAsync(userId);
+
+            if (player == null)
+                return new Res_EnterHome() { Result = ERROR_CODE.FAIL_INVALID_USER };
+
+            return player.ToEnterHomeResponse(_tableService);
+        }
+
+        [HttpPost(nameof(SearchOpponent))]
+        [Authorize]
+        public async Task<Res_SearchOpponent> SearchOpponent([FromBody] Req_SearchOpponent req)
+        {
+            var userId = GetUserID();
+
+            if (string.IsNullOrEmpty(userId))
+                return new Res_SearchOpponent() { Result = ERROR_CODE.FAIL_INVALID_USER };
+
+            // 내 정보 조회
+            var me = await _repository.GetPlayerFullAsync(userId);
+            if (me == null)
+                return new Res_SearchOpponent() { Result = ERROR_CODE.FAIL_INVALID_USER };
+
+            var searchRes = await _playerService.SearchOpponentAsync(me);
+
+            if (searchRes.errCode != ERROR_CODE.SUCCESS)
+                return new Res_SearchOpponent() { Result = searchRes.errCode };
+
+            var opponent = searchRes.opponent;
+
+            return me.ToSearchOpponentResponse(opponent, _tableService);
         }
 
 #if DEBUG
-        [HttpPost(nameof(CheatAddGold))]
+        [HttpPost(nameof(CheatAddCurrency))]
         [Authorize]
-        public async Task<Res_CheatAddGold> CheatAddGold([FromBody] Req_CheatAddGold req)
+        public async Task<Res_CheatAddCurrency> CheatAddCurrency([FromBody] Req_CheatAddCurrency req)
         {
-            Console.WriteLine(nameof(CheatAddGold));
-
-            var res = new Res_CheatAddGold();
-
             if (req == null)
-            {
-                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
-                return res;
-            }
+                return new Res_CheatAddCurrency() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
 
             var userId = GetUserID();
 
             if (string.IsNullOrEmpty(userId))
-            {
-                res.Result = ERROR_CODE.FAIL_UNKNOWN;
-                return res;
-            }
+                return new Res_CheatAddCurrency() { Result = ERROR_CODE.FAIL_UNKNOWN };
 
             if (req.Amount == 0)
-            {
-                res.Result = ERROR_CODE.SUCCESS;
-                var player = await _repository.GetPlayerAsync(userId);
-                res.CurrentAmount = player.Gold;
-                return res;
-            }
+                return new Res_CheatAddCurrency() { Result = ERROR_CODE.INVALID_INPUT };
 
-            if (await _repository.AddGold(userId, req.Amount) == false)
-            {
-                res.Result = ERROR_CODE.FAIL_UNKNOWN;
-                return res;
-            }
+            var sres = await _playerService.CheatCurrency(userId, req.CurrencyType);
 
-            res.Result = ERROR_CODE.SUCCESS;
-            res.CurrentAmount = (await _repository.GetPlayerAsync(userId)).Gold;
+            if (sres.errCode != ERROR_CODE.SUCCESS)
+                return new Res_CheatAddCurrency() { Result = sres.errCode };
 
-            return res;
+            return new Res_CheatAddCurrency() { Result = ERROR_CODE.SUCCESS, CurrentAmount = sres.remainedCurrency };
         }
 #endif
 
-#if DEBUG
-        [HttpPost(nameof(CheatAddWood))]
+        [HttpPost(nameof(EquipDeploymentSlot))]
         [Authorize]
-        public async Task<Res_CheatAddWood> CheatAddWood([FromBody] Req_CheatAddWood req)
+        public async Task<Res_EquipDeploymentSlot> EquipDeploymentSlot(Req_EquipDeploymentSlot req)
         {
-            Console.WriteLine(nameof(CheatAddWood));
-
-            var res = new Res_CheatAddWood();
-
             if (req == null)
-            {
-                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
-                return res;
-            }
+                return new Res_EquipDeploymentSlot() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
 
             var userId = GetUserID();
 
             if (string.IsNullOrEmpty(userId))
-            {
-                res.Result = ERROR_CODE.FAIL_UNKNOWN;
-                return res;
-            }
+                return new Res_EquipDeploymentSlot() { Result = ERROR_CODE.FAIL_INVALID_USER };
 
-            if (req.Amount == 0)
-            {
-                res.Result = ERROR_CODE.SUCCESS;
-                var player = await _repository.GetPlayerAsync(userId);
-                res.CurrentAmount = player.Wood;
-                return res;
-            }
+            var sres = await _playerService.EquipDeploymentSlotAsync(userId, req.EquipSlotIdx, req.EquipItemUid);
 
-            if (await _repository.AddWood(userId, req.Amount) == false)
-            {
-                res.Result = ERROR_CODE.FAIL_UNKNOWN;
-                return res;
-            }
-
-            res.Result = ERROR_CODE.SUCCESS;
-            res.CurrentAmount = (await _repository.GetPlayerAsync(userId)).Wood;
-
-            return res;
+            return new Res_EquipDeploymentSlot() { Result = sres };
         }
-#endif
 
-#if DEBUG
-        [HttpPost(nameof(CheatAddFood))]
+        [HttpPost(nameof(UnequipDeploymentSlot))]
         [Authorize]
-        public async Task<Res_CheatAddFood> CheatAddFood([FromBody] Req_CheatAddFood req)
+        public async Task<Res_UnequipDeploymentSlot> UnequipDeploymentSlot(Req_UnequipDeploymentSlot req)
         {
-            Console.WriteLine(nameof(CheatAddFood));
-
-            var res = new Res_CheatAddFood();
-
             if (req == null)
-            {
-                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
-                return res;
-            }
+                return new Res_UnequipDeploymentSlot() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
 
             var userId = GetUserID();
 
             if (string.IsNullOrEmpty(userId))
-            {
-                res.Result = ERROR_CODE.FAIL_INVALID_USER;
-                return res;
-            }
+                return new Res_UnequipDeploymentSlot() { Result = ERROR_CODE.FAIL_INVALID_USER };
 
-            if (req.Amount == 0)
-            {
-                res.Result = ERROR_CODE.SUCCESS;
-                var player = await _repository.GetPlayerAsync(userId);
-                res.CurrentAmount = player.Food;
-                return res;
-            }
+            var sres = await _playerService.UnequipDeploymentSlotAsync(userId, req.SlotIdx);
 
-            if (await _repository.AddFood(userId, req.Amount) == false)
-            {
-                res.Result = ERROR_CODE.FAIL_UNKNOWN;
-                return res;
-            }
-
-            res.Result = ERROR_CODE.SUCCESS;
-            res.CurrentAmount = (await _repository.GetPlayerAsync(userId)).Food;
-
-            return res;
+            return new Res_UnequipDeploymentSlot() { Result = sres };
         }
-#endif
 
         [HttpPost(nameof(ChangeSkill))]
         [Authorize]
         public async Task<Res_ChangeSkill> ChangeSkill(Req_ChangeSkill req)
         {
-            var res = new Res_ChangeSkill();
-
             if (req == null)
-            {
-                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
-                return res;
-            }
+                return new Res_ChangeSkill() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
 
             var userId = GetUserID();
 
             if (string.IsNullOrEmpty(userId))
-            {
-                res.Result = ERROR_CODE.FAIL_INVALID_USER;
-                return res;
-            }
+                return new Res_ChangeSkill() { Result = ERROR_CODE.FAIL_INVALID_USER };
 
-            bool isSuccess = await _repository.ChangeSkill(userId, req.SkillSet, req.SpellSet);
+            var sres = await _playerService.ChangeSkill(userId, req.SkillSet, req.SpellSet);
 
-            if (isSuccess == false)
-            {
-                res.Result = ERROR_CODE.FAIL_UNKNOWN;
-                return res;
-            }
-
-            res.Result = ERROR_CODE.SUCCESS;
-
-            return res;
+            return new Res_ChangeSkill() { Result = sres };
         }
 
         [HttpPost(nameof(CreateStructure))]
         [Authorize]
         public async Task<Res_CreateStructure> CreateStructure(Req_CreateStructure req)
         {
-            Console.WriteLine(nameof(CreateStructure));
-
-            var res = new Res_CreateStructure();
-
             if (req == null)
-            {
-                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
-                return res;
-            }
+                return new Res_CreateStructure() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
 
             var userId = GetUserID();
 
             if (string.IsNullOrEmpty(userId))
-            {
-                res.Result = ERROR_CODE.FAIL_INVALID_USER;
-                return res;
-            }
+                return new Res_CreateStructure() { Result = ERROR_CODE.FAIL_INVALID_USER };
 
-            var result = await _repository.CreateStructure(userId, req.TableID, req.PositionX, req.PositionZ, req.RotationY);
-            if (result.uid < 0)
-            {
-                if (result.uid == -1)
-                    res.Result = ERROR_CODE.CREATE_STRUCTURE_FAIL_01;
-                else if (result.uid == -2)
-                    res.Result = ERROR_CODE.CREATE_STRUCTURE_FAIL_02;
-                else res.Result = ERROR_CODE.FAIL_UNKNOWN;
+            var result = await _playerService.CreateStructureAsync(userId, req.TableID, req.PositionX, req.PositionZ, req.RotationY);
 
-                return res;
-            }
-
-            res.Result = ERROR_CODE.SUCCESS;
-            res.RemainedGold = result.remainedGold;
-            res.RemainedWood = result.remainedWood;
-            res.RemainedFood = result.remainedFood;
-            res.UID = result.uid;
-
-            return res;
+            return result.ToCreateStructureResponse(_tableService);
         }
 
         [HttpPost(nameof(DestroyStructure))]
         [Authorize]
         public async Task<Res_DestroyStructure> DestroyStructure(Req_DestroyStructure req)
         {
-            Console.WriteLine(nameof(DestroyStructure));
+            if (req == null)
+                return new Res_DestroyStructure() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
 
-            var res = new Res_DestroyStructure();
+            var userId = GetUserID();
+
+            if (string.IsNullOrEmpty(userId))
+                return new Res_DestroyStructure() { Result = ERROR_CODE.FAIL_INVALID_USER };
+
+            var sres = await _playerService.DestroyStructureAsync(userId, req.UID);
+
+            return new Res_DestroyStructure() { Result = sres };
+        }
+
+        [HttpPost(nameof(GarrisonUnit))]
+        [Authorize]
+        public async Task<Res_GarrisonUnit> GarrisonUnit(Req_GarrisonUnit req)
+        {
+            var res = new Res_GarrisonUnit();
 
             if (req == null)
             {
@@ -446,198 +312,266 @@ namespace LearningServer01.Controllers
             }
 
             var userId = GetUserID();
-
             if (string.IsNullOrEmpty(userId))
             {
                 res.Result = ERROR_CODE.FAIL_INVALID_USER;
                 return res;
             }
 
-            bool isSuccess = await _repository.DestroyStructure(userId, req.UID);
-            if (isSuccess == false)
+            res.Result = await _playerService.GarrisonUnitAsync(userId, req.OwnerEntityUid, req.SlotIdx, req.GarrisonUnitUid);
+
+            return res;
+        }
+
+        [HttpPost(nameof(SetSpawnUnit))]
+        [Authorize]
+        public async Task<Res_SetSpawnUnit> SetSpawnUnit(Req_SetSpawnUnit req)
+        {
+            var res = new Res_SetSpawnUnit();
+
+            if (req == null)
             {
-                res.Result = ERROR_CODE.FAIL_UNKNOWN;
+                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
                 return res;
             }
 
-            res.Result = ERROR_CODE.SUCCESS;
+            var userId = GetUserID();
+            if (string.IsNullOrEmpty(userId))
+            {
+                res.Result = ERROR_CODE.FAIL_INVALID_USER;
+                return res;
+            }
+
+            res.Result = await _playerService.SetSpawnUnitAsync(userId, req.OwnerEntityUid, req.SpawnUnitUid);
+
+            return res;
+        }
+
+        [HttpPost(nameof(UngarrisonUnit))]
+        [Authorize]
+        public async Task<Res_UngarrisonUnit> UngarrisonUnit(Req_UngarrisonUnit req)
+        {
+            var res = new Res_UngarrisonUnit();
+
+            if (req == null)
+            {
+                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
+                return res;
+            }
+
+            var userId = GetUserID();
+            if (string.IsNullOrEmpty(userId))
+            {
+                res.Result = ERROR_CODE.FAIL_INVALID_USER;
+                return res;
+            }
+
+            var processResult = await _playerService.UngarrisonUnitAsync(userId, req.OwnerEntityUid, req.UngarrisonUnitUid);
+
+            res.Result = processResult.Item1;
+            res.OperatedGarrisonType = processResult.Item2;
+
+            return res;
+        }
+
+        [HttpPost(nameof(BuyItem))]
+        [Authorize]
+        public async Task<Res_BuyItem> BuyItem(Req_BuyItem req)
+        {
+            var res = new Res_BuyItem();
+
+            if (req == null)
+            {
+                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
+                return res;
+            }
+
+            var userId = GetUserID();
+            if (string.IsNullOrEmpty(userId))
+            {
+                res.Result = ERROR_CODE.FAIL_INVALID_USER;
+                return res;
+            }
+
+            var result = await _playerService.BuyItemAsync(userId, req.ItemTid);
+            res.Result = result.errCode;
+
+            if (result.errCode == ERROR_CODE.SUCCESS)
+            {
+                res.UID = result.uid;
+                res.RemainedGold = result.remainedGold;
+                res.RemainedWood = result.remainedWood;
+                res.RemainedFood = result.remainedFood;
+            }
+
+            return res;
+        }
+
+        [HttpPost(nameof(MoveEntity))]
+        [Authorize]
+        public async Task<Res_MoveEntity> MoveEntity(Req_MoveEntity req)
+        {
+            var res = new Res_MoveEntity();
+
+            if (req == null)
+            {
+                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
+                return res;
+            }
+
+            var userId = GetUserID();
+            if (string.IsNullOrEmpty(userId))
+            {
+                res.Result = ERROR_CODE.FAIL_INVALID_USER;
+                return res;
+            }
+
+            res.Result = await _playerService.MoveEntityAsync(userId, req.MoveEntityUid, req.PositionX, req.PositionZ, req.RotationY);
+
+            return res;
+        }
+
+        [HttpPost(nameof(EquipHero))]
+        [Authorize]
+        public async Task<Res_EquipHero> EquipHero(Req_EquipHero req)
+        {
+            var res = new Res_EquipHero();
+
+            if (req == null)
+            {
+                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
+                return res;
+            }
+
+            var userId = GetUserID();
+            if (string.IsNullOrEmpty(userId))
+            {
+                res.Result = ERROR_CODE.FAIL_INVALID_USER;
+                return res;
+            }
+
+            res.Result = await _playerService.EquipHeroAsync(userId, req.HeroItemUid);
+
+            return res;
+        }
+
+        [HttpPost(nameof(UnequipHero))]
+        [Authorize]
+        public async Task<Res_UnequipHero> UnequipHero(Req_UnequipHero req)
+        {
+            var res = new Res_UnequipHero();
+
+            if (req == null)
+            {
+                res.Result = ERROR_CODE.FAIL_EMPTY_REQUEST;
+                return res;
+            }
+
+            var userId = GetUserID();
+            if (string.IsNullOrEmpty(userId))
+            {
+                res.Result = ERROR_CODE.FAIL_INVALID_USER;
+                return res;
+            }
+
+            res.Result = await _playerService.UnequipHeroAsync(userId);
 
             return res;
         }
 
         //----------------------------------------------------------------------------//
 
-        private string CreateToken(string userId)
+        StructureSpecificData ToStructureSpecificData(StructureTable tableData)
         {
-            // 토큰에 담을 정보 (Claim)
-            // '누구인지' 에 대한 정보만 담아야함. 언제든지 이거는 중간에 볼수있음
-            // (비번넣으면안됨)
-            var claims = new List<Claim>()
-            {
-                /// jwt 페이로드에 포함됨 참고.
-                /// 참고로 <see cref="ClaimTypes.NameIdentifier"/> 는 "nameid" 로 치환돼 들어감
-                new Claim(ClaimTypes.NameIdentifier, userId)
-                // 필요하다면 new Claim(ClaimTypes.Role, "Admin") 이런것도 참고 ㄱㄱ 
-            };
-
-            // 비밀키 가져오기
-            var keyStr = _configuration.GetSection("JwtSettings:SecretKey").Value;
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyStr));
-
-            // 서명자격증명
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
-
-            /// 토큰의 구성요소들 의미 참고 ㄱㄱ
-            ///     https://datatracker.ietf.org/doc/html/rfc7519#page-9 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(1),
-                Issuer = _configuration.GetSection("JwtSettings:Issuer").Value,
-                Audience = _configuration.GetSection("JwtSettings:Audience").Value,
-                SigningCredentials = creds
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return tokenHandler.WriteToken(token);
+            return ToStructureSpecificData(null, null, tableData);
         }
 
-        private List<EntityItemInfo> DefaultEntities(string userId)
+        StructureSpecificData ToStructureSpecificData(List<EntityGarrisonInfo> garrisons, List<UserItem> items, StructureTable tableData)
         {
-            return new List<EntityItemInfo>()
-            {
-                new EntityItemInfo()
-                {
-                    TableID = 156, Level = 1, OwnerID = userId,
-                    PositionX = 33.3f, PositionZ = 34.6f, RotationY = -90
-                },
-                new EntityItemInfo()
-                {
-                    TableID = 163, Level = 1, OwnerID = userId,
-                    PositionX = 52.5f, PositionZ = 34.7f, RotationY = -180
-                },
-                new EntityItemInfo()
-                {
-                    TableID = 157, Level = 1, OwnerID = userId,
-                    PositionX = 63.3f, PositionZ = 33.5f, RotationY = -180
-                },
-                new EntityItemInfo()
-                {
-                    TableID = 372, Level = 1, OwnerID = userId,
-                    PositionX = 38f, PositionZ = 47f, RotationY = -90
-                },
-                new EntityItemInfo()
-                {
-                    TableID = 144, Level = 1, OwnerID = userId,
-                    PositionX = 51.32f, PositionZ = 58.56f, RotationY = -180
-                },
-                new EntityItemInfo()
-                {
-                    TableID = 145, Level = 1, OwnerID = userId,
-                    PositionX = 61.04f, PositionZ = 57.6f, RotationY = -180
-                },
-            };
-        }
+            if (tableData.GarrisonCount == 0 && tableData.StructureType != E_StructureType.Spawner)
+                return null;
 
-        private List<UserItem> DefaultItems(string accountID)
-        {
-            return new List<UserItem>()
-            {
-                new UserItem()
-                {
-                    OwnerID = accountID,
-                    Level=1,
-                    TableID = 1,
-                    Quantity = 1,
-                },
-                new UserItem()
-                {
-                    OwnerID = accountID,
-                    Level=1,
-                    TableID = 2,
-                    Quantity = 1,
-                },
-                new UserItem()
-                {
-                    OwnerID = accountID,
-                    Level = 1,
-                    TableID = 3,
-                    Quantity = 1,
-                },
-                new UserItem()
-                {
-                    OwnerID = accountID,
-                    Level = 1,
-                    TableID = 4,
-                    Quantity = 1,
-                },new UserItem()
-                {
-                    OwnerID = accountID,
-                    Level = 1,
-                    TableID = 5,
-                    Quantity = 1,
-                },
-            };
-        }
+            var data = new StructureSpecificData();
 
-        private List<DeploymentSlot> DefaultDeploymentSlots(string ownerId, List<UserItem> userItems)
-        {
-            var deploymentSlots = new List<DeploymentSlot>()
+            // 테이블상 Garrison 주둔이 가능한다면
+            // 일단 리스트는 기본으로 할당해줌 
+            int garrisonCount = (int)tableData.GarrisonCount;
+            if (garrisonCount > 0)
             {
-                new DeploymentSlot()
-                {
-                     OwnerID = ownerId,
-                     SlotIdx = 0,
-                },new DeploymentSlot()
-                {
-                     OwnerID = ownerId,
-                     SlotIdx = 1,
-                }
-                ,new DeploymentSlot()
-                {
-                     OwnerID = ownerId,
-                     SlotIdx = 2,
-                }
-                ,new DeploymentSlot()
-                {
-                     OwnerID = ownerId,
-                     SlotIdx = 3,
-                }
-                ,new DeploymentSlot()
-                {
-                     OwnerID = ownerId,
-                     SlotIdx = 4,
-                },new DeploymentSlot()
-                {
-                     OwnerID = ownerId,
-                     SlotIdx = 5,
-                },new DeploymentSlot()
-                {
-                     OwnerID = ownerId,
-                     SlotIdx = 6,
-                },new DeploymentSlot()
-                {
-                     OwnerID = ownerId,
-                     SlotIdx = 7,
-                },new DeploymentSlot()
-                {
-                     OwnerID = ownerId,
-                     SlotIdx = 8,
-                }
-            };
-
-            var squadItems = userItems.Where(x =>
-                _tableService.Container.ItemTable_data.TryGetValue((uint)x.TableID, out var data) &&
-                data.Type == E_ItemType.Squad).ToList();
-
-            for (int i = 0; i < squadItems.Count && i < deploymentSlots.Count; i++)
-            {
-                deploymentSlots[i].EquippedItem = squadItems[i];
+                data.GarrisonedItemUIDs = Enumerable.Repeat(0L, garrisonCount).ToList();
+                data.GarrisonedEntityTableIDs = Enumerable.Repeat(0, garrisonCount).ToList();
             }
 
-            return deploymentSlots;
+            // Garrison 데이터가 존재하는 경우 처리
+            if (garrisons != null)
+            {
+                for (int i = 0; i < garrisons.Count; i++)
+                {
+                    var g = garrisons[i];
+                    if (g.Type == S_GarrisonSlotType.None)
+                    {
+                        _logger.LogError($"[ERROR] Garrison 타입이 None 이 될 수 없음");
+                        continue;
+                    }
+
+                    var targetGarrisonedItem = items.Find(t => t.UID == g.EquippedItemUID);
+                    EntityTable entityData = null;
+                    ItemTable itemData = null;
+
+                    bool isValid =
+                        g != null &&
+                        g.UID != 0 &&
+                        g.EquippedItemUID != 0 &&
+                        g.OwnerEntityUID != 0 &&
+                        targetGarrisonedItem != null &&
+                        _tableService.Container.ItemTable_data.TryGetValue((uint)targetGarrisonedItem.TableID, out itemData) &&
+                        itemData.Type == E_ItemType.Squad &&
+                        _tableService.Container.EntityTable_data.TryGetValue(itemData.RefID, out entityData) &&
+                        entityData.EntityType == E_EntityType.Character &&
+                        _tableService.Container.CharacterTable_data.ContainsKey(entityData.DetailTableID);
+
+                    if (isValid == false)
+                    {
+                        // 만약 targetGarrisonedItem 이 Null 이라면 Garrison 주둔군 데이터는 존재하나
+                        // 실제로 이 주둔군 Item 의 UID 가 ItemList에 없는 케이스 - 데이터 싱크 깨짐 의심
+                        _logger.LogError($"[ERROR] SpecificData 조립1 검증 데이터 오류 | IsNull : {g == null} , UID : {g.UID} , EquippedItemUID : {g.EquippedItemUID} , OwnerEntityUID : {g.OwnerEntityUID} , GarrisonedItemIsNull : {targetGarrisonedItem == null}");
+                        continue;
+                    }
+
+                    if (g.Type == S_GarrisonSlotType.Garrison)
+                    {
+                        if (g.SlotIdx < 0 || g.SlotIdx >= garrisonCount)
+                        {
+                            _logger.LogError($"[ERROR] SpecificData 조립2 검증 데이터 오류 | SlotIdx 의 인덱스 범위 벗어남 | Idx : {g.SlotIdx} , MaxCount : {garrisonCount}");
+                            continue;
+                        }
+
+                        if (data.GarrisonedItemUIDs[g.SlotIdx] != 0)
+                        {
+                            // 루프중 설정이 된게 또 설정 시도하려고 하고있음. 인풋 데이터에 중복 체크
+                            _logger.LogError($"[ERROR] SpecificData 조립3 검증 데이터 오류 | 인풋 주둔 데이터의 SlotIdx 중복 에러");
+                            continue;
+                        }
+
+                        data.GarrisonedItemUIDs[g.SlotIdx] = g.EquippedItemUID;
+                        data.GarrisonedEntityTableIDs[g.SlotIdx] = (int)entityData.ID;
+                    }
+                    else if (g.Type == S_GarrisonSlotType.Spawn)
+                    {
+                        if (data.SpawningItemUID != 0)
+                        {
+                            // 루프중 설정이 된게 또 설정 시도하려고 하고있음. 인풋 데이터에 중복 체크
+                            _logger.LogError($"[ERROR] SpecificData 조립4 검증 데이터 오류 | 인풋 주둔 데이터의 SlotIdx 중복 에러");
+                            continue;
+                        }
+
+                        data.SpawningItemUID = g.EquippedItemUID;
+                        data.SpawningItemTableID = (int)itemData.ID;
+                    }
+                }
+            }
+
+            return data;
         }
     }
 }

@@ -47,59 +47,63 @@ namespace GameDB.Resolvers
 
         static GameDBContainerResolverGetFormatterHelper()
         {
-            lookup = new global::System.Collections.Generic.Dictionary<global::System.Type, int>(51)
+            lookup = new global::System.Collections.Generic.Dictionary<global::System.Type, int>(55)
             {
                 { typeof(global::UnityEngine.Vector2Int[]), 0 },
                 { typeof(global::GameDB.E_ActionPointType), 1 },
                 { typeof(global::GameDB.E_ActionType), 2 },
                 { typeof(global::GameDB.E_AimType), 3 },
-                { typeof(global::GameDB.E_AssetType), 4 },
-                { typeof(global::GameDB.E_Audio3D_DistanceType), 5 },
-                { typeof(global::GameDB.E_AudioType), 6 },
-                { typeof(global::GameDB.E_CharacterType), 7 },
-                { typeof(global::GameDB.E_CollisionRangeType), 8 },
-                { typeof(global::GameDB.E_CurrencyType), 9 },
-                { typeof(global::GameDB.E_DeliveryContextInheritType), 10 },
-                { typeof(global::GameDB.E_EntityFlags), 11 },
-                { typeof(global::GameDB.E_EntityModelType), 12 },
-                { typeof(global::GameDB.E_EntityType), 13 },
-                { typeof(global::GameDB.E_FieldItemType), 14 },
-                { typeof(global::GameDB.E_ItemGradeType), 15 },
-                { typeof(global::GameDB.E_ItemType), 16 },
-                { typeof(global::GameDB.E_LoaderType), 17 },
-                { typeof(global::GameDB.E_ProjectileCollisionActivationType), 18 },
-                { typeof(global::GameDB.E_ProjectileMovementType), 19 },
-                { typeof(global::GameDB.E_ProjectileTargetingType), 20 },
-                { typeof(global::GameDB.E_RefDataType), 21 },
-                { typeof(global::GameDB.E_ResourceType), 22 },
-                { typeof(global::GameDB.E_SizeType), 23 },
-                { typeof(global::GameDB.E_SkillCategoryType), 24 },
-                { typeof(global::GameDB.E_SkillTriggerConditionType), 25 },
-                { typeof(global::GameDB.E_SkillTriggerType), 26 },
-                { typeof(global::GameDB.E_SkillType), 27 },
-                { typeof(global::GameDB.E_SpellPositionType), 28 },
-                { typeof(global::GameDB.E_StructureType), 29 },
-                { typeof(global::GameDB.E_UpdateLogicType), 30 },
-                { typeof(global::GameDB.E_WaveCommandType), 31 },
-                { typeof(global::GameDB.ActionPointTable), 32 },
-                { typeof(global::GameDB.AnimationTable), 33 },
-                { typeof(global::GameDB.AssetMetaTable), 34 },
-                { typeof(global::GameDB.AudioTable), 35 },
-                { typeof(global::GameDB.CharacterTable), 36 },
-                { typeof(global::GameDB.CurrencyTable), 37 },
-                { typeof(global::GameDB.EntityTable), 38 },
-                { typeof(global::GameDB.FieldItemTable), 39 },
-                { typeof(global::GameDB.ItemTable), 40 },
-                { typeof(global::GameDB.KillStreakTable), 41 },
-                { typeof(global::GameDB.PetTable), 42 },
-                { typeof(global::GameDB.ProjectileTable), 43 },
-                { typeof(global::GameDB.PurchaseCostTable), 44 },
-                { typeof(global::GameDB.ResourceTable), 45 },
-                { typeof(global::GameDB.SkillTable), 46 },
-                { typeof(global::GameDB.StatTable), 47 },
-                { typeof(global::GameDB.StructureTable), 48 },
-                { typeof(global::GameDB.WaveSequenceTable), 49 },
-                { typeof(global::GameDB.WaveTable), 50 },
+                { typeof(global::GameDB.E_AITargetingRuleType), 4 },
+                { typeof(global::GameDB.E_AssetType), 5 },
+                { typeof(global::GameDB.E_Audio3D_DistanceType), 6 },
+                { typeof(global::GameDB.E_AudioType), 7 },
+                { typeof(global::GameDB.E_CharacterType), 8 },
+                { typeof(global::GameDB.E_CollisionRangeType), 9 },
+                { typeof(global::GameDB.E_CurrencyType), 10 },
+                { typeof(global::GameDB.E_DeliveryContextInheritType), 11 },
+                { typeof(global::GameDB.E_EntityFlags), 12 },
+                { typeof(global::GameDB.E_EntityModelType), 13 },
+                { typeof(global::GameDB.E_EntityType), 14 },
+                { typeof(global::GameDB.E_FieldItemType), 15 },
+                { typeof(global::GameDB.E_ItemGradeType), 16 },
+                { typeof(global::GameDB.E_ItemType), 17 },
+                { typeof(global::GameDB.E_LoaderType), 18 },
+                { typeof(global::GameDB.E_ProjectileCollisionActivationType), 19 },
+                { typeof(global::GameDB.E_ProjectileMovementType), 20 },
+                { typeof(global::GameDB.E_ProjectileTargetingType), 21 },
+                { typeof(global::GameDB.E_PurchaseContentType), 22 },
+                { typeof(global::GameDB.E_RefDataType), 23 },
+                { typeof(global::GameDB.E_ResourceType), 24 },
+                { typeof(global::GameDB.E_SizeType), 25 },
+                { typeof(global::GameDB.E_SkillCategoryType), 26 },
+                { typeof(global::GameDB.E_SkillTriggerConditionType), 27 },
+                { typeof(global::GameDB.E_SkillTriggerType), 28 },
+                { typeof(global::GameDB.E_SkillType), 29 },
+                { typeof(global::GameDB.E_SpellPositionType), 30 },
+                { typeof(global::GameDB.E_StructureType), 31 },
+                { typeof(global::GameDB.E_UpdateLogicType), 32 },
+                { typeof(global::GameDB.E_WaveCommandType), 33 },
+                { typeof(global::GameDB.E_ZoneType), 34 },
+                { typeof(global::GameDB.ActionPointTable), 35 },
+                { typeof(global::GameDB.AIProfileTable), 36 },
+                { typeof(global::GameDB.AnimationTable), 37 },
+                { typeof(global::GameDB.AssetMetaTable), 38 },
+                { typeof(global::GameDB.AudioTable), 39 },
+                { typeof(global::GameDB.CharacterTable), 40 },
+                { typeof(global::GameDB.CurrencyTable), 41 },
+                { typeof(global::GameDB.EntityTable), 42 },
+                { typeof(global::GameDB.FieldItemTable), 43 },
+                { typeof(global::GameDB.ItemTable), 44 },
+                { typeof(global::GameDB.KillStreakTable), 45 },
+                { typeof(global::GameDB.PetTable), 46 },
+                { typeof(global::GameDB.ProjectileTable), 47 },
+                { typeof(global::GameDB.PurchaseCostTable), 48 },
+                { typeof(global::GameDB.ResourceTable), 49 },
+                { typeof(global::GameDB.SkillTable), 50 },
+                { typeof(global::GameDB.StatTable), 51 },
+                { typeof(global::GameDB.StructureTable), 52 },
+                { typeof(global::GameDB.WaveSequenceTable), 53 },
+                { typeof(global::GameDB.WaveTable), 54 },
             };
         }
 
@@ -117,53 +121,57 @@ namespace GameDB.Resolvers
                 case 1: return new GameDB.Formatters.GameDB.E_ActionPointTypeFormatter();
                 case 2: return new GameDB.Formatters.GameDB.E_ActionTypeFormatter();
                 case 3: return new GameDB.Formatters.GameDB.E_AimTypeFormatter();
-                case 4: return new GameDB.Formatters.GameDB.E_AssetTypeFormatter();
-                case 5: return new GameDB.Formatters.GameDB.E_Audio3D_DistanceTypeFormatter();
-                case 6: return new GameDB.Formatters.GameDB.E_AudioTypeFormatter();
-                case 7: return new GameDB.Formatters.GameDB.E_CharacterTypeFormatter();
-                case 8: return new GameDB.Formatters.GameDB.E_CollisionRangeTypeFormatter();
-                case 9: return new GameDB.Formatters.GameDB.E_CurrencyTypeFormatter();
-                case 10: return new GameDB.Formatters.GameDB.E_DeliveryContextInheritTypeFormatter();
-                case 11: return new GameDB.Formatters.GameDB.E_EntityFlagsFormatter();
-                case 12: return new GameDB.Formatters.GameDB.E_EntityModelTypeFormatter();
-                case 13: return new GameDB.Formatters.GameDB.E_EntityTypeFormatter();
-                case 14: return new GameDB.Formatters.GameDB.E_FieldItemTypeFormatter();
-                case 15: return new GameDB.Formatters.GameDB.E_ItemGradeTypeFormatter();
-                case 16: return new GameDB.Formatters.GameDB.E_ItemTypeFormatter();
-                case 17: return new GameDB.Formatters.GameDB.E_LoaderTypeFormatter();
-                case 18: return new GameDB.Formatters.GameDB.E_ProjectileCollisionActivationTypeFormatter();
-                case 19: return new GameDB.Formatters.GameDB.E_ProjectileMovementTypeFormatter();
-                case 20: return new GameDB.Formatters.GameDB.E_ProjectileTargetingTypeFormatter();
-                case 21: return new GameDB.Formatters.GameDB.E_RefDataTypeFormatter();
-                case 22: return new GameDB.Formatters.GameDB.E_ResourceTypeFormatter();
-                case 23: return new GameDB.Formatters.GameDB.E_SizeTypeFormatter();
-                case 24: return new GameDB.Formatters.GameDB.E_SkillCategoryTypeFormatter();
-                case 25: return new GameDB.Formatters.GameDB.E_SkillTriggerConditionTypeFormatter();
-                case 26: return new GameDB.Formatters.GameDB.E_SkillTriggerTypeFormatter();
-                case 27: return new GameDB.Formatters.GameDB.E_SkillTypeFormatter();
-                case 28: return new GameDB.Formatters.GameDB.E_SpellPositionTypeFormatter();
-                case 29: return new GameDB.Formatters.GameDB.E_StructureTypeFormatter();
-                case 30: return new GameDB.Formatters.GameDB.E_UpdateLogicTypeFormatter();
-                case 31: return new GameDB.Formatters.GameDB.E_WaveCommandTypeFormatter();
-                case 32: return new GameDB.Formatters.GameDB.ActionPointTableFormatter();
-                case 33: return new GameDB.Formatters.GameDB.AnimationTableFormatter();
-                case 34: return new GameDB.Formatters.GameDB.AssetMetaTableFormatter();
-                case 35: return new GameDB.Formatters.GameDB.AudioTableFormatter();
-                case 36: return new GameDB.Formatters.GameDB.CharacterTableFormatter();
-                case 37: return new GameDB.Formatters.GameDB.CurrencyTableFormatter();
-                case 38: return new GameDB.Formatters.GameDB.EntityTableFormatter();
-                case 39: return new GameDB.Formatters.GameDB.FieldItemTableFormatter();
-                case 40: return new GameDB.Formatters.GameDB.ItemTableFormatter();
-                case 41: return new GameDB.Formatters.GameDB.KillStreakTableFormatter();
-                case 42: return new GameDB.Formatters.GameDB.PetTableFormatter();
-                case 43: return new GameDB.Formatters.GameDB.ProjectileTableFormatter();
-                case 44: return new GameDB.Formatters.GameDB.PurchaseCostTableFormatter();
-                case 45: return new GameDB.Formatters.GameDB.ResourceTableFormatter();
-                case 46: return new GameDB.Formatters.GameDB.SkillTableFormatter();
-                case 47: return new GameDB.Formatters.GameDB.StatTableFormatter();
-                case 48: return new GameDB.Formatters.GameDB.StructureTableFormatter();
-                case 49: return new GameDB.Formatters.GameDB.WaveSequenceTableFormatter();
-                case 50: return new GameDB.Formatters.GameDB.WaveTableFormatter();
+                case 4: return new GameDB.Formatters.GameDB.E_AITargetingRuleTypeFormatter();
+                case 5: return new GameDB.Formatters.GameDB.E_AssetTypeFormatter();
+                case 6: return new GameDB.Formatters.GameDB.E_Audio3D_DistanceTypeFormatter();
+                case 7: return new GameDB.Formatters.GameDB.E_AudioTypeFormatter();
+                case 8: return new GameDB.Formatters.GameDB.E_CharacterTypeFormatter();
+                case 9: return new GameDB.Formatters.GameDB.E_CollisionRangeTypeFormatter();
+                case 10: return new GameDB.Formatters.GameDB.E_CurrencyTypeFormatter();
+                case 11: return new GameDB.Formatters.GameDB.E_DeliveryContextInheritTypeFormatter();
+                case 12: return new GameDB.Formatters.GameDB.E_EntityFlagsFormatter();
+                case 13: return new GameDB.Formatters.GameDB.E_EntityModelTypeFormatter();
+                case 14: return new GameDB.Formatters.GameDB.E_EntityTypeFormatter();
+                case 15: return new GameDB.Formatters.GameDB.E_FieldItemTypeFormatter();
+                case 16: return new GameDB.Formatters.GameDB.E_ItemGradeTypeFormatter();
+                case 17: return new GameDB.Formatters.GameDB.E_ItemTypeFormatter();
+                case 18: return new GameDB.Formatters.GameDB.E_LoaderTypeFormatter();
+                case 19: return new GameDB.Formatters.GameDB.E_ProjectileCollisionActivationTypeFormatter();
+                case 20: return new GameDB.Formatters.GameDB.E_ProjectileMovementTypeFormatter();
+                case 21: return new GameDB.Formatters.GameDB.E_ProjectileTargetingTypeFormatter();
+                case 22: return new GameDB.Formatters.GameDB.E_PurchaseContentTypeFormatter();
+                case 23: return new GameDB.Formatters.GameDB.E_RefDataTypeFormatter();
+                case 24: return new GameDB.Formatters.GameDB.E_ResourceTypeFormatter();
+                case 25: return new GameDB.Formatters.GameDB.E_SizeTypeFormatter();
+                case 26: return new GameDB.Formatters.GameDB.E_SkillCategoryTypeFormatter();
+                case 27: return new GameDB.Formatters.GameDB.E_SkillTriggerConditionTypeFormatter();
+                case 28: return new GameDB.Formatters.GameDB.E_SkillTriggerTypeFormatter();
+                case 29: return new GameDB.Formatters.GameDB.E_SkillTypeFormatter();
+                case 30: return new GameDB.Formatters.GameDB.E_SpellPositionTypeFormatter();
+                case 31: return new GameDB.Formatters.GameDB.E_StructureTypeFormatter();
+                case 32: return new GameDB.Formatters.GameDB.E_UpdateLogicTypeFormatter();
+                case 33: return new GameDB.Formatters.GameDB.E_WaveCommandTypeFormatter();
+                case 34: return new GameDB.Formatters.GameDB.E_ZoneTypeFormatter();
+                case 35: return new GameDB.Formatters.GameDB.ActionPointTableFormatter();
+                case 36: return new GameDB.Formatters.GameDB.AIProfileTableFormatter();
+                case 37: return new GameDB.Formatters.GameDB.AnimationTableFormatter();
+                case 38: return new GameDB.Formatters.GameDB.AssetMetaTableFormatter();
+                case 39: return new GameDB.Formatters.GameDB.AudioTableFormatter();
+                case 40: return new GameDB.Formatters.GameDB.CharacterTableFormatter();
+                case 41: return new GameDB.Formatters.GameDB.CurrencyTableFormatter();
+                case 42: return new GameDB.Formatters.GameDB.EntityTableFormatter();
+                case 43: return new GameDB.Formatters.GameDB.FieldItemTableFormatter();
+                case 44: return new GameDB.Formatters.GameDB.ItemTableFormatter();
+                case 45: return new GameDB.Formatters.GameDB.KillStreakTableFormatter();
+                case 46: return new GameDB.Formatters.GameDB.PetTableFormatter();
+                case 47: return new GameDB.Formatters.GameDB.ProjectileTableFormatter();
+                case 48: return new GameDB.Formatters.GameDB.PurchaseCostTableFormatter();
+                case 49: return new GameDB.Formatters.GameDB.ResourceTableFormatter();
+                case 50: return new GameDB.Formatters.GameDB.SkillTableFormatter();
+                case 51: return new GameDB.Formatters.GameDB.StatTableFormatter();
+                case 52: return new GameDB.Formatters.GameDB.StructureTableFormatter();
+                case 53: return new GameDB.Formatters.GameDB.WaveSequenceTableFormatter();
+                case 54: return new GameDB.Formatters.GameDB.WaveTableFormatter();
                 default: return null;
             }
         }
@@ -231,6 +239,19 @@ namespace GameDB.Formatters.GameDB
         public global::GameDB.E_AimType Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
         {
             return (global::GameDB.E_AimType)reader.ReadInt32();
+        }
+    }
+
+    public sealed class E_AITargetingRuleTypeFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::GameDB.E_AITargetingRuleType>
+    {
+        public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::GameDB.E_AITargetingRuleType value, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            writer.Write((global::System.Int32)value);
+        }
+
+        public global::GameDB.E_AITargetingRuleType Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            return (global::GameDB.E_AITargetingRuleType)reader.ReadInt32();
         }
     }
 
@@ -455,6 +476,19 @@ namespace GameDB.Formatters.GameDB
         }
     }
 
+    public sealed class E_PurchaseContentTypeFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::GameDB.E_PurchaseContentType>
+    {
+        public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::GameDB.E_PurchaseContentType value, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            writer.Write((global::System.Int32)value);
+        }
+
+        public global::GameDB.E_PurchaseContentType Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            return (global::GameDB.E_PurchaseContentType)reader.ReadInt32();
+        }
+    }
+
     public sealed class E_RefDataTypeFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::GameDB.E_RefDataType>
     {
         public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::GameDB.E_RefDataType value, global::MessagePack.MessagePackSerializerOptions options)
@@ -597,6 +631,19 @@ namespace GameDB.Formatters.GameDB
             return (global::GameDB.E_WaveCommandType)reader.ReadInt32();
         }
     }
+
+    public sealed class E_ZoneTypeFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::GameDB.E_ZoneType>
+    {
+        public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::GameDB.E_ZoneType value, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            writer.Write((global::System.Int32)value);
+        }
+
+        public global::GameDB.E_ZoneType Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            return (global::GameDB.E_ZoneType)reader.ReadInt32();
+        }
+    }
 }
 
 #pragma warning restore 168
@@ -707,6 +754,150 @@ namespace GameDB.Formatters.GameDB
                         if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 495655676998UL) { goto FAIL; }
 
                         ____result.Flags = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_EntityFlags>(formatterResolver).Deserialize(ref reader, options);
+                        continue;
+
+                }
+            }
+
+            reader.Depth--;
+            return ____result;
+        }
+    }
+
+    public sealed class AIProfileTableFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::GameDB.AIProfileTable>
+    {
+        // ID
+        private static global::System.ReadOnlySpan<byte> GetSpan_ID() => new byte[1 + 2] { 162, 73, 68 };
+        // RuleType
+        private static global::System.ReadOnlySpan<byte> GetSpan_RuleType() => new byte[1 + 8] { 168, 82, 117, 108, 101, 84, 121, 112, 101 };
+        // MaxScore_Dist
+        private static global::System.ReadOnlySpan<byte> GetSpan_MaxScore_Dist() => new byte[1 + 13] { 173, 77, 97, 120, 83, 99, 111, 114, 101, 95, 68, 105, 115, 116 };
+        // MaxScore_Aggro
+        private static global::System.ReadOnlySpan<byte> GetSpan_MaxScore_Aggro() => new byte[1 + 14] { 174, 77, 97, 120, 83, 99, 111, 114, 101, 95, 65, 103, 103, 114, 111 };
+        // CharacterScore
+        private static global::System.ReadOnlySpan<byte> GetSpan_CharacterScore() => new byte[1 + 14] { 174, 67, 104, 97, 114, 97, 99, 116, 101, 114, 83, 99, 111, 114, 101 };
+        // StructureScore
+        private static global::System.ReadOnlySpan<byte> GetSpan_StructureScore() => new byte[1 + 14] { 174, 83, 116, 114, 117, 99, 116, 117, 114, 101, 83, 99, 111, 114, 101 };
+        // DefenseStructureScore
+        private static global::System.ReadOnlySpan<byte> GetSpan_DefenseStructureScore() => new byte[1 + 21] { 181, 68, 101, 102, 101, 110, 115, 101, 83, 116, 114, 117, 99, 116, 117, 114, 101, 83, 99, 111, 114, 101 };
+        // ObstacleStructureScore
+        private static global::System.ReadOnlySpan<byte> GetSpan_ObstacleStructureScore() => new byte[1 + 22] { 182, 79, 98, 115, 116, 97, 99, 108, 101, 83, 116, 114, 117, 99, 116, 117, 114, 101, 83, 99, 111, 114, 101 };
+        // RescanInterval
+        private static global::System.ReadOnlySpan<byte> GetSpan_RescanInterval() => new byte[1 + 14] { 174, 82, 101, 115, 99, 97, 110, 73, 110, 116, 101, 114, 118, 97, 108 };
+        // AdditionalTargetSwitchMargin
+        private static global::System.ReadOnlySpan<byte> GetSpan_AdditionalTargetSwitchMargin() => new byte[1 + 28] { 188, 65, 100, 100, 105, 116, 105, 111, 110, 97, 108, 84, 97, 114, 103, 101, 116, 83, 119, 105, 116, 99, 104, 77, 97, 114, 103, 105, 110 };
+
+        public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::GameDB.AIProfileTable value, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            if (value is null)
+            {
+                writer.WriteNil();
+                return;
+            }
+
+            var formatterResolver = options.Resolver;
+            writer.WriteMapHeader(10);
+            writer.WriteRaw(GetSpan_ID());
+            writer.Write(value.ID);
+            writer.WriteRaw(GetSpan_RuleType());
+            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_AITargetingRuleType>(formatterResolver).Serialize(ref writer, value.RuleType, options);
+            writer.WriteRaw(GetSpan_MaxScore_Dist());
+            writer.Write(value.MaxScore_Dist);
+            writer.WriteRaw(GetSpan_MaxScore_Aggro());
+            writer.Write(value.MaxScore_Aggro);
+            writer.WriteRaw(GetSpan_CharacterScore());
+            writer.Write(value.CharacterScore);
+            writer.WriteRaw(GetSpan_StructureScore());
+            writer.Write(value.StructureScore);
+            writer.WriteRaw(GetSpan_DefenseStructureScore());
+            writer.Write(value.DefenseStructureScore);
+            writer.WriteRaw(GetSpan_ObstacleStructureScore());
+            writer.Write(value.ObstacleStructureScore);
+            writer.WriteRaw(GetSpan_RescanInterval());
+            writer.Write(value.RescanInterval);
+            writer.WriteRaw(GetSpan_AdditionalTargetSwitchMargin());
+            writer.Write(value.AdditionalTargetSwitchMargin);
+        }
+
+        public global::GameDB.AIProfileTable Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            if (reader.TryReadNil())
+            {
+                return null;
+            }
+
+            options.Security.DepthStep(ref reader);
+            var formatterResolver = options.Resolver;
+            var length = reader.ReadMapHeader();
+            var ____result = new global::GameDB.AIProfileTable();
+
+            for (int i = 0; i < length; i++)
+            {
+                var stringKey = global::MessagePack.Internal.CodeGenHelpers.ReadStringSpan(ref reader);
+                switch (stringKey.Length)
+                {
+                    default:
+                    FAIL:
+                      reader.Skip();
+                      continue;
+                    case 2:
+                        if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 17481UL) { goto FAIL; }
+
+                        ____result.ID = reader.ReadUInt32();
+                        continue;
+                    case 8:
+                        if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 7309475598608135506UL) { goto FAIL; }
+
+                        ____result.RuleType = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_AITargetingRuleType>(formatterResolver).Deserialize(ref reader, options);
+                        continue;
+                    case 13:
+                        if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_MaxScore_Dist().Slice(1))) { goto FAIL; }
+
+                        ____result.MaxScore_Dist = reader.ReadInt32();
+                        continue;
+                    case 14:
+                        switch (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey))
+                        {
+                            default: goto FAIL;
+                            case 7310027617568579917UL:
+                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 122537151775071UL) { goto FAIL; }
+
+                                ____result.MaxScore_Aggro = reader.ReadInt32();
+                                continue;
+
+                            case 7310577365311121475UL:
+                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 111542169457522UL) { goto FAIL; }
+
+                                ____result.CharacterScore = reader.ReadInt32();
+                                continue;
+
+                            case 8247626263119950931UL:
+                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 111542169457509UL) { goto FAIL; }
+
+                                ____result.StructureScore = reader.ReadInt32();
+                                continue;
+
+                            case 7947004382031340882UL:
+                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 119165854836084UL) { goto FAIL; }
+
+                                ____result.RescanInterval = reader.ReadSingle();
+                                continue;
+
+                        }
+                    case 21:
+                        if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_DefenseStructureScore().Slice(1))) { goto FAIL; }
+
+                        ____result.DefenseStructureScore = reader.ReadInt32();
+                        continue;
+                    case 22:
+                        if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_ObstacleStructureScore().Slice(1))) { goto FAIL; }
+
+                        ____result.ObstacleStructureScore = reader.ReadInt32();
+                        continue;
+                    case 28:
+                        if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_AdditionalTargetSwitchMargin().Slice(1))) { goto FAIL; }
+
+                        ____result.AdditionalTargetSwitchMargin = reader.ReadSingle();
                         continue;
 
                 }
@@ -991,12 +1182,18 @@ namespace GameDB.Formatters.GameDB
         private static global::System.ReadOnlySpan<byte> GetSpan_ID() => new byte[1 + 2] { 162, 73, 68 };
         // CharacterType
         private static global::System.ReadOnlySpan<byte> GetSpan_CharacterType() => new byte[1 + 13] { 173, 67, 104, 97, 114, 97, 99, 116, 101, 114, 84, 121, 112, 101 };
+        // ZoneType
+        private static global::System.ReadOnlySpan<byte> GetSpan_ZoneType() => new byte[1 + 8] { 168, 90, 111, 110, 101, 84, 121, 112, 101 };
+        // AIProfileID
+        private static global::System.ReadOnlySpan<byte> GetSpan_AIProfileID() => new byte[1 + 11] { 171, 65, 73, 80, 114, 111, 102, 105, 108, 101, 73, 68 };
         // CharacterSize
         private static global::System.ReadOnlySpan<byte> GetSpan_CharacterSize() => new byte[1 + 13] { 173, 67, 104, 97, 114, 97, 99, 116, 101, 114, 83, 105, 122, 101 };
         // SkillSet
         private static global::System.ReadOnlySpan<byte> GetSpan_SkillSet() => new byte[1 + 8] { 168, 83, 107, 105, 108, 108, 83, 101, 116 };
         // ShadowScale
         private static global::System.ReadOnlySpan<byte> GetSpan_ShadowScale() => new byte[1 + 11] { 171, 83, 104, 97, 100, 111, 119, 83, 99, 97, 108, 101 };
+        // ActiveFXKey
+        private static global::System.ReadOnlySpan<byte> GetSpan_ActiveFXKey() => new byte[1 + 11] { 171, 65, 99, 116, 105, 118, 101, 70, 88, 75, 101, 121 };
         // MoveTrailFXKey
         private static global::System.ReadOnlySpan<byte> GetSpan_MoveTrailFXKey() => new byte[1 + 14] { 174, 77, 111, 118, 101, 84, 114, 97, 105, 108, 70, 88, 75, 101, 121 };
         // UseIK
@@ -1015,17 +1212,23 @@ namespace GameDB.Formatters.GameDB
             }
 
             var formatterResolver = options.Resolver;
-            writer.WriteMapHeader(9);
+            writer.WriteMapHeader(12);
             writer.WriteRaw(GetSpan_ID());
             writer.Write(value.ID);
             writer.WriteRaw(GetSpan_CharacterType());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_CharacterType>(formatterResolver).Serialize(ref writer, value.CharacterType, options);
+            writer.WriteRaw(GetSpan_ZoneType());
+            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ZoneType>(formatterResolver).Serialize(ref writer, value.ZoneType, options);
+            writer.WriteRaw(GetSpan_AIProfileID());
+            writer.Write(value.AIProfileID);
             writer.WriteRaw(GetSpan_CharacterSize());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_SizeType>(formatterResolver).Serialize(ref writer, value.CharacterSize, options);
             writer.WriteRaw(GetSpan_SkillSet());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<uint[]>(formatterResolver).Serialize(ref writer, value.SkillSet, options);
             writer.WriteRaw(GetSpan_ShadowScale());
             writer.Write(value.ShadowScale);
+            writer.WriteRaw(GetSpan_ActiveFXKey());
+            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.ActiveFXKey, options);
             writer.WriteRaw(GetSpan_MoveTrailFXKey());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.MoveTrailFXKey, options);
             writer.WriteRaw(GetSpan_UseIK());
@@ -1080,15 +1283,39 @@ namespace GameDB.Formatters.GameDB
 
                         }
                     case 8:
-                        if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 8387201606187838291UL) { goto FAIL; }
-
-                        ____result.SkillSet = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<uint[]>(formatterResolver).Deserialize(ref reader, options);
-                        continue;
+                        switch (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey))
+                        {
+                            default: goto FAIL;
+                            case 7309475598608265050UL:
+                                ____result.ZoneType = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ZoneType>(formatterResolver).Deserialize(ref reader, options);
+                                continue;
+                            case 8387201606187838291UL:
+                                ____result.SkillSet = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<uint[]>(formatterResolver).Deserialize(ref reader, options);
+                                continue;
+                        }
                     case 11:
-                        if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_ShadowScale().Slice(1))) { goto FAIL; }
+                        switch (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey))
+                        {
+                            default: goto FAIL;
+                            case 7811887657496103233UL:
+                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 4475237UL) { goto FAIL; }
 
-                        ____result.ShadowScale = reader.ReadSingle();
-                        continue;
+                                ____result.AIProfileID = reader.ReadUInt32();
+                                continue;
+
+                            case 7157195553131030611UL:
+                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 6646881UL) { goto FAIL; }
+
+                                ____result.ShadowScale = reader.ReadSingle();
+                                continue;
+
+                            case 6360883082957185857UL:
+                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 7955787UL) { goto FAIL; }
+
+                                ____result.ActiveFXKey = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Deserialize(ref reader, options);
+                                continue;
+
+                        }
                     case 14:
                         if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_MoveTrailFXKey().Slice(1))) { goto FAIL; }
 
@@ -1474,6 +1701,8 @@ namespace GameDB.Formatters.GameDB
         private static global::System.ReadOnlySpan<byte> GetSpan_IconKey() => new byte[1 + 7] { 167, 73, 99, 111, 110, 75, 101, 121 };
         // GradeType
         private static global::System.ReadOnlySpan<byte> GetSpan_GradeType() => new byte[1 + 9] { 169, 71, 114, 97, 100, 101, 84, 121, 112, 101 };
+        // SquadCount
+        private static global::System.ReadOnlySpan<byte> GetSpan_SquadCount() => new byte[1 + 10] { 170, 83, 113, 117, 97, 100, 67, 111, 117, 110, 116 };
         // MaxQuantity
         private static global::System.ReadOnlySpan<byte> GetSpan_MaxQuantity() => new byte[1 + 11] { 171, 77, 97, 120, 81, 117, 97, 110, 116, 105, 116, 121 };
         // RefID
@@ -1488,7 +1717,7 @@ namespace GameDB.Formatters.GameDB
             }
 
             var formatterResolver = options.Resolver;
-            writer.WriteMapHeader(8);
+            writer.WriteMapHeader(9);
             writer.WriteRaw(GetSpan_ID());
             writer.Write(value.ID);
             writer.WriteRaw(GetSpan_Type());
@@ -1501,6 +1730,8 @@ namespace GameDB.Formatters.GameDB
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.IconKey, options);
             writer.WriteRaw(GetSpan_GradeType());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ItemGradeType>(formatterResolver).Serialize(ref writer, value.GradeType, options);
+            writer.WriteRaw(GetSpan_SquadCount());
+            writer.Write(value.SquadCount);
             writer.WriteRaw(GetSpan_MaxQuantity());
             writer.Write(value.MaxQuantity);
             writer.WriteRaw(GetSpan_RefID());
@@ -1571,10 +1802,15 @@ namespace GameDB.Formatters.GameDB
 
                         ____result.GradeType = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ItemGradeType>(formatterResolver).Deserialize(ref reader, options);
                         continue;
+                    case 10:
+                        if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_SquadCount().Slice(1))) { goto FAIL; }
+
+                        ____result.SquadCount = reader.ReadInt32();
+                        continue;
                     case 5:
                         if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 293289223506UL) { goto FAIL; }
 
-                        ____result.RefID = reader.ReadInt32();
+                        ____result.RefID = reader.ReadUInt32();
                         continue;
 
                 }
@@ -1800,6 +2036,12 @@ namespace GameDB.Formatters.GameDB
         private static global::System.ReadOnlySpan<byte> GetSpan_InheritType() => new byte[1 + 11] { 171, 73, 110, 104, 101, 114, 105, 116, 84, 121, 112, 101 };
         // MovementType
         private static global::System.ReadOnlySpan<byte> GetSpan_MovementType() => new byte[1 + 12] { 172, 77, 111, 118, 101, 109, 101, 110, 116, 84, 121, 112, 101 };
+        // MovementValue01
+        private static global::System.ReadOnlySpan<byte> GetSpan_MovementValue01() => new byte[1 + 15] { 175, 77, 111, 118, 101, 109, 101, 110, 116, 86, 97, 108, 117, 101, 48, 49 };
+        // MovementValue02
+        private static global::System.ReadOnlySpan<byte> GetSpan_MovementValue02() => new byte[1 + 15] { 175, 77, 111, 118, 101, 109, 101, 110, 116, 86, 97, 108, 117, 101, 48, 50 };
+        // MovementValue03
+        private static global::System.ReadOnlySpan<byte> GetSpan_MovementValue03() => new byte[1 + 15] { 175, 77, 111, 118, 101, 109, 101, 110, 116, 86, 97, 108, 117, 101, 48, 51 };
         // MaxDistance
         private static global::System.ReadOnlySpan<byte> GetSpan_MaxDistance() => new byte[1 + 11] { 171, 77, 97, 120, 68, 105, 115, 116, 97, 110, 99, 101 };
         // CollisionActivationType
@@ -1834,6 +2076,8 @@ namespace GameDB.Formatters.GameDB
         private static global::System.ReadOnlySpan<byte> GetSpan_UpdateLogicValue() => new byte[1 + 16] { 176, 85, 112, 100, 97, 116, 101, 76, 111, 103, 105, 99, 86, 97, 108, 117, 101 };
         // ProcessActionType
         private static global::System.ReadOnlySpan<byte> GetSpan_ProcessActionType() => new byte[1 + 17] { 177, 80, 114, 111, 99, 101, 115, 115, 65, 99, 116, 105, 111, 110, 84, 121, 112, 101 };
+        // ProcessActionTargetZoneType
+        private static global::System.ReadOnlySpan<byte> GetSpan_ProcessActionTargetZoneType() => new byte[1 + 27] { 187, 80, 114, 111, 99, 101, 115, 115, 65, 99, 116, 105, 111, 110, 84, 97, 114, 103, 101, 116, 90, 111, 110, 101, 84, 121, 112, 101 };
         // ProcessRefType
         private static global::System.ReadOnlySpan<byte> GetSpan_ProcessRefType() => new byte[1 + 14] { 174, 80, 114, 111, 99, 101, 115, 115, 82, 101, 102, 84, 121, 112, 101 };
         // ProcessRefID
@@ -1854,6 +2098,8 @@ namespace GameDB.Formatters.GameDB
         private static global::System.ReadOnlySpan<byte> GetSpan_ProcessFXKeys() => new byte[1 + 13] { 173, 80, 114, 111, 99, 101, 115, 115, 70, 88, 75, 101, 121, 115 };
         // EndActionType
         private static global::System.ReadOnlySpan<byte> GetSpan_EndActionType() => new byte[1 + 13] { 173, 69, 110, 100, 65, 99, 116, 105, 111, 110, 84, 121, 112, 101 };
+        // EndActionTargetZoneType
+        private static global::System.ReadOnlySpan<byte> GetSpan_EndActionTargetZoneType() => new byte[1 + 23] { 183, 69, 110, 100, 65, 99, 116, 105, 111, 110, 84, 97, 114, 103, 101, 116, 90, 111, 110, 101, 84, 121, 112, 101 };
         // EndRefType
         private static global::System.ReadOnlySpan<byte> GetSpan_EndRefType() => new byte[1 + 10] { 170, 69, 110, 100, 82, 101, 102, 84, 121, 112, 101 };
         // EndRefID
@@ -1880,7 +2126,7 @@ namespace GameDB.Formatters.GameDB
             }
 
             var formatterResolver = options.Resolver;
-            writer.WriteMapHeader(43);
+            writer.WriteMapHeader(48);
             writer.WriteRaw(GetSpan_ID());
             writer.Write(value.ID);
             writer.WriteRaw(GetSpan_ResourceKey());
@@ -1897,6 +2143,12 @@ namespace GameDB.Formatters.GameDB
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_DeliveryContextInheritType>(formatterResolver).Serialize(ref writer, value.InheritType, options);
             writer.WriteRaw(GetSpan_MovementType());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ProjectileMovementType>(formatterResolver).Serialize(ref writer, value.MovementType, options);
+            writer.WriteRaw(GetSpan_MovementValue01());
+            writer.Write(value.MovementValue01);
+            writer.WriteRaw(GetSpan_MovementValue02());
+            writer.Write(value.MovementValue02);
+            writer.WriteRaw(GetSpan_MovementValue03());
+            writer.Write(value.MovementValue03);
             writer.WriteRaw(GetSpan_MaxDistance());
             writer.Write(value.MaxDistance);
             writer.WriteRaw(GetSpan_CollisionActivationType());
@@ -1931,6 +2183,8 @@ namespace GameDB.Formatters.GameDB
             writer.Write(value.UpdateLogicValue);
             writer.WriteRaw(GetSpan_ProcessActionType());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ActionType>(formatterResolver).Serialize(ref writer, value.ProcessActionType, options);
+            writer.WriteRaw(GetSpan_ProcessActionTargetZoneType());
+            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ZoneType>(formatterResolver).Serialize(ref writer, value.ProcessActionTargetZoneType, options);
             writer.WriteRaw(GetSpan_ProcessRefType());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_RefDataType>(formatterResolver).Serialize(ref writer, value.ProcessRefType, options);
             writer.WriteRaw(GetSpan_ProcessRefID());
@@ -1951,6 +2205,8 @@ namespace GameDB.Formatters.GameDB
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string[]>(formatterResolver).Serialize(ref writer, value.ProcessFXKeys, options);
             writer.WriteRaw(GetSpan_EndActionType());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ActionType>(formatterResolver).Serialize(ref writer, value.EndActionType, options);
+            writer.WriteRaw(GetSpan_EndActionTargetZoneType());
+            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ZoneType>(formatterResolver).Serialize(ref writer, value.EndActionTargetZoneType, options);
             writer.WriteRaw(GetSpan_EndRefType());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_RefDataType>(formatterResolver).Serialize(ref writer, value.EndRefType, options);
             writer.WriteRaw(GetSpan_EndRefID());
@@ -2091,11 +2347,55 @@ namespace GameDB.Formatters.GameDB
                                 continue;
 
                         }
-                    case 23:
-                        if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_CollisionActivationType().Slice(1))) { goto FAIL; }
+                    case 15:
+                        switch (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey))
+                        {
+                            default: goto FAIL;
+                            case 8389754676365913933UL:
+                                switch (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey))
+                                {
+                                    default: goto FAIL;
+                                    case 13845486178689366UL:
+                                        ____result.MovementValue01 = reader.ReadSingle();
+                                        continue;
+                                    case 14126961155400022UL:
+                                        ____result.MovementValue02 = reader.ReadSingle();
+                                        continue;
+                                    case 14408436132110678UL:
+                                        ____result.MovementValue03 = reader.ReadSingle();
+                                        continue;
+                                }
 
-                        ____result.CollisionActivationType = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ProjectileCollisionActivationType>(formatterResolver).Deserialize(ref reader, options);
-                        continue;
+                            case 7953729055376045377UL:
+                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 30227126480105316UL) { goto FAIL; }
+
+                                ____result.AudioRandomPick = reader.ReadBoolean();
+                                continue;
+
+                            case 8019896586964594773UL:
+                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 28552639056931175UL) { goto FAIL; }
+
+                                ____result.UpdateLogicType = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_UpdateLogicType>(formatterResolver).Deserialize(ref reader, options);
+                                continue;
+
+                        }
+                    case 23:
+                        switch (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey))
+                        {
+                            default: goto FAIL;
+                            case 8028074707392425795UL:
+                                if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_CollisionActivationType().Slice(1 + 8))) { goto FAIL; }
+
+                                ____result.CollisionActivationType = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ProjectileCollisionActivationType>(formatterResolver).Deserialize(ref reader, options);
+                                continue;
+
+                            case 8028075780412304965UL:
+                                if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_EndActionTargetZoneType().Slice(1 + 8))) { goto FAIL; }
+
+                                ____result.EndActionTargetZoneType = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ZoneType>(formatterResolver).Deserialize(ref reader, options);
+                                continue;
+
+                        }
                     case 18:
                         switch (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey))
                         {
@@ -2251,23 +2551,6 @@ namespace GameDB.Formatters.GameDB
                                 continue;
 
                         }
-                    case 15:
-                        switch (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey))
-                        {
-                            default: goto FAIL;
-                            case 7953729055376045377UL:
-                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 30227126480105316UL) { goto FAIL; }
-
-                                ____result.AudioRandomPick = reader.ReadBoolean();
-                                continue;
-
-                            case 8019896586964594773UL:
-                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 28552639056931175UL) { goto FAIL; }
-
-                                ____result.UpdateLogicType = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_UpdateLogicType>(formatterResolver).Deserialize(ref reader, options);
-                                continue;
-
-                        }
                     case 16:
                         if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_UpdateLogicValue().Slice(1))) { goto FAIL; }
 
@@ -2277,6 +2560,11 @@ namespace GameDB.Formatters.GameDB
                         if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_ProcessActionType().Slice(1))) { goto FAIL; }
 
                         ____result.ProcessActionType = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ActionType>(formatterResolver).Deserialize(ref reader, options);
+                        continue;
+                    case 27:
+                        if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_ProcessActionTargetZoneType().Slice(1))) { goto FAIL; }
+
+                        ____result.ProcessActionTargetZoneType = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ZoneType>(formatterResolver).Deserialize(ref reader, options);
                         continue;
 
                 }
@@ -2291,14 +2579,14 @@ namespace GameDB.Formatters.GameDB
     {
         // ID
         private static global::System.ReadOnlySpan<byte> GetSpan_ID() => new byte[1 + 2] { 162, 73, 68 };
-        // EntityID
-        private static global::System.ReadOnlySpan<byte> GetSpan_EntityID() => new byte[1 + 8] { 168, 69, 110, 116, 105, 116, 121, 73, 68 };
+        // ContentType
+        private static global::System.ReadOnlySpan<byte> GetSpan_ContentType() => new byte[1 + 11] { 171, 67, 111, 110, 116, 101, 110, 116, 84, 121, 112, 101 };
+        // RefID
+        private static global::System.ReadOnlySpan<byte> GetSpan_RefID() => new byte[1 + 5] { 165, 82, 101, 102, 73, 68 };
         // CostCurrencyType
         private static global::System.ReadOnlySpan<byte> GetSpan_CostCurrencyType() => new byte[1 + 16] { 176, 67, 111, 115, 116, 67, 117, 114, 114, 101, 110, 99, 121, 84, 121, 112, 101 };
         // CostPrice
         private static global::System.ReadOnlySpan<byte> GetSpan_CostPrice() => new byte[1 + 9] { 169, 67, 111, 115, 116, 80, 114, 105, 99, 101 };
-        // AcquireCount
-        private static global::System.ReadOnlySpan<byte> GetSpan_AcquireCount() => new byte[1 + 12] { 172, 65, 99, 113, 117, 105, 114, 101, 67, 111, 117, 110, 116 };
 
         public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::GameDB.PurchaseCostTable value, global::MessagePack.MessagePackSerializerOptions options)
         {
@@ -2312,14 +2600,14 @@ namespace GameDB.Formatters.GameDB
             writer.WriteMapHeader(5);
             writer.WriteRaw(GetSpan_ID());
             writer.Write(value.ID);
-            writer.WriteRaw(GetSpan_EntityID());
-            writer.Write(value.EntityID);
+            writer.WriteRaw(GetSpan_ContentType());
+            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_PurchaseContentType>(formatterResolver).Serialize(ref writer, value.ContentType, options);
+            writer.WriteRaw(GetSpan_RefID());
+            writer.Write(value.RefID);
             writer.WriteRaw(GetSpan_CostCurrencyType());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_CurrencyType>(formatterResolver).Serialize(ref writer, value.CostCurrencyType, options);
             writer.WriteRaw(GetSpan_CostPrice());
             writer.Write(value.CostPrice);
-            writer.WriteRaw(GetSpan_AcquireCount());
-            writer.Write(value.AcquireCount);
         }
 
         public global::GameDB.PurchaseCostTable Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
@@ -2348,10 +2636,15 @@ namespace GameDB.Formatters.GameDB
 
                         ____result.ID = reader.ReadUInt32();
                         continue;
-                    case 8:
-                        if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 4920597608771382853UL) { goto FAIL; }
+                    case 11:
+                        if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_ContentType().Slice(1))) { goto FAIL; }
 
-                        ____result.EntityID = reader.ReadUInt32();
+                        ____result.ContentType = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_PurchaseContentType>(formatterResolver).Deserialize(ref reader, options);
+                        continue;
+                    case 5:
+                        if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 293289223506UL) { goto FAIL; }
+
+                        ____result.RefID = reader.ReadUInt32();
                         continue;
                     case 16:
                         if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_CostCurrencyType().Slice(1))) { goto FAIL; }
@@ -2362,11 +2655,6 @@ namespace GameDB.Formatters.GameDB
                         if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_CostPrice().Slice(1))) { goto FAIL; }
 
                         ____result.CostPrice = reader.ReadUInt32();
-                        continue;
-                    case 12:
-                        if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_AcquireCount().Slice(1))) { goto FAIL; }
-
-                        ____result.AcquireCount = reader.ReadUInt32();
                         continue;
 
                 }
@@ -2454,6 +2742,8 @@ namespace GameDB.Formatters.GameDB
         private static global::System.ReadOnlySpan<byte> GetSpan_SkillType() => new byte[1 + 9] { 169, 83, 107, 105, 108, 108, 84, 121, 112, 101 };
         // Description
         private static global::System.ReadOnlySpan<byte> GetSpan_Description() => new byte[1 + 11] { 171, 68, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110 };
+        // TargetZoneType
+        private static global::System.ReadOnlySpan<byte> GetSpan_TargetZoneType() => new byte[1 + 14] { 174, 84, 97, 114, 103, 101, 116, 90, 111, 110, 101, 84, 121, 112, 101 };
         // TriggerCondition
         private static global::System.ReadOnlySpan<byte> GetSpan_TriggerCondition() => new byte[1 + 16] { 176, 84, 114, 105, 103, 103, 101, 114, 67, 111, 110, 100, 105, 116, 105, 111, 110 };
         // TriggerType
@@ -2518,7 +2808,7 @@ namespace GameDB.Formatters.GameDB
             }
 
             var formatterResolver = options.Resolver;
-            writer.WriteMapHeader(33);
+            writer.WriteMapHeader(34);
             writer.WriteRaw(GetSpan_ID());
             writer.Write(value.ID);
             writer.WriteRaw(GetSpan_Name());
@@ -2531,6 +2821,8 @@ namespace GameDB.Formatters.GameDB
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_SkillType>(formatterResolver).Serialize(ref writer, value.SkillType, options);
             writer.WriteRaw(GetSpan_Description());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.Description, options);
+            writer.WriteRaw(GetSpan_TargetZoneType());
+            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ZoneType>(formatterResolver).Serialize(ref writer, value.TargetZoneType, options);
             writer.WriteRaw(GetSpan_TriggerCondition());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_SkillTriggerConditionType>(formatterResolver).Serialize(ref writer, value.TriggerCondition, options);
             writer.WriteRaw(GetSpan_TriggerType());
@@ -2671,6 +2963,23 @@ namespace GameDB.Formatters.GameDB
                                 if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 6647145UL) { goto FAIL; }
 
                                 ____result.CastingTime = reader.ReadSingle();
+                                continue;
+
+                        }
+                    case 14:
+                        switch (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey))
+                        {
+                            default: goto FAIL;
+                            case 8023853664990028116UL:
+                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 111533746316654UL) { goto FAIL; }
+
+                                ____result.TargetZoneType = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::GameDB.E_ZoneType>(formatterResolver).Deserialize(ref reader, options);
+                                continue;
+
+                            case 7236797983208337491UL:
+                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 127979076609615UL) { goto FAIL; }
+
+                                ____result.SpellEndOffset = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::UnityEngine.Vector3>(formatterResolver).Deserialize(ref reader, options);
                                 continue;
 
                         }
@@ -2845,11 +3154,6 @@ namespace GameDB.Formatters.GameDB
                                 continue;
 
                         }
-                    case 14:
-                        if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_SpellEndOffset().Slice(1))) { goto FAIL; }
-
-                        ____result.SpellEndOffset = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::UnityEngine.Vector3>(formatterResolver).Deserialize(ref reader, options);
-                        continue;
 
                 }
             }
@@ -2889,10 +3193,6 @@ namespace GameDB.Formatters.GameDB
         private static global::System.ReadOnlySpan<byte> GetSpan_RotateSpeed() => new byte[1 + 11] { 171, 82, 111, 116, 97, 116, 101, 83, 112, 101, 101, 100 };
         // ScanRange
         private static global::System.ReadOnlySpan<byte> GetSpan_ScanRange() => new byte[1 + 9] { 169, 83, 99, 97, 110, 82, 97, 110, 103, 101 };
-        // AggroWeight_Structure
-        private static global::System.ReadOnlySpan<byte> GetSpan_AggroWeight_Structure() => new byte[1 + 21] { 181, 65, 103, 103, 114, 111, 87, 101, 105, 103, 104, 116, 95, 83, 116, 114, 117, 99, 116, 117, 114, 101 };
-        // AggroWeight_Character
-        private static global::System.ReadOnlySpan<byte> GetSpan_AggroWeight_Character() => new byte[1 + 21] { 181, 65, 103, 103, 114, 111, 87, 101, 105, 103, 104, 116, 95, 67, 104, 97, 114, 97, 99, 116, 101, 114 };
 
         public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::GameDB.StatTable value, global::MessagePack.MessagePackSerializerOptions options)
         {
@@ -2903,7 +3203,7 @@ namespace GameDB.Formatters.GameDB
             }
 
             var formatterResolver = options.Resolver;
-            writer.WriteMapHeader(16);
+            writer.WriteMapHeader(14);
             writer.WriteRaw(GetSpan_ID());
             writer.Write(value.ID);
             writer.WriteRaw(GetSpan_Description());
@@ -2932,10 +3232,6 @@ namespace GameDB.Formatters.GameDB
             writer.Write(value.RotateSpeed);
             writer.WriteRaw(GetSpan_ScanRange());
             writer.Write(value.ScanRange);
-            writer.WriteRaw(GetSpan_AggroWeight_Structure());
-            writer.Write(value.AggroWeight_Structure);
-            writer.WriteRaw(GetSpan_AggroWeight_Character());
-            writer.Write(value.AggroWeight_Character);
         }
 
         public global::GameDB.StatTable Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
@@ -3044,29 +3340,6 @@ namespace GameDB.Formatters.GameDB
                                 continue;
 
                         }
-                    case 21:
-                        switch (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey))
-                        {
-                            default: goto FAIL;
-                            case 7594572482802575169UL:
-                                switch (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey))
-                                {
-                                    default: goto FAIL;
-                                    case 8462954551215155303UL:
-                                        if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 435711997027UL) { goto FAIL; }
-
-                                        ____result.AggroWeight_Structure = reader.ReadSingle();
-                                        continue;
-
-                                    case 8241983431638280295UL:
-                                        if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 491328398177UL) { goto FAIL; }
-
-                                        ____result.AggroWeight_Character = reader.ReadSingle();
-                                        continue;
-
-                                }
-
-                        }
 
                 }
             }
@@ -3086,6 +3359,8 @@ namespace GameDB.Formatters.GameDB
         private static global::System.ReadOnlySpan<byte> GetSpan_IsRepairable() => new byte[1 + 12] { 172, 73, 115, 82, 101, 112, 97, 105, 114, 97, 98, 108, 101 };
         // Description
         private static global::System.ReadOnlySpan<byte> GetSpan_Description() => new byte[1 + 11] { 171, 68, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110 };
+        // AIProfileID
+        private static global::System.ReadOnlySpan<byte> GetSpan_AIProfileID() => new byte[1 + 11] { 171, 65, 73, 80, 114, 111, 102, 105, 108, 101, 73, 68 };
         // SoundKey
         private static global::System.ReadOnlySpan<byte> GetSpan_SoundKey() => new byte[1 + 8] { 168, 83, 111, 117, 110, 100, 75, 101, 121 };
         // DestroyEffectKey
@@ -3112,14 +3387,12 @@ namespace GameDB.Formatters.GameDB
         private static global::System.ReadOnlySpan<byte> GetSpan_GenCurrencyGrowthPerLevel() => new byte[1 + 25] { 185, 71, 101, 110, 67, 117, 114, 114, 101, 110, 99, 121, 71, 114, 111, 119, 116, 104, 80, 101, 114, 76, 101, 118, 101, 108 };
         // GenResourceInterval
         private static global::System.ReadOnlySpan<byte> GetSpan_GenResourceInterval() => new byte[1 + 19] { 179, 71, 101, 110, 82, 101, 115, 111, 117, 114, 99, 101, 73, 110, 116, 101, 114, 118, 97, 108 };
-        // EnableSpawning
-        private static global::System.ReadOnlySpan<byte> GetSpan_EnableSpawning() => new byte[1 + 14] { 174, 69, 110, 97, 98, 108, 101, 83, 112, 97, 119, 110, 105, 110, 103 };
         // SpawnEntityIDOnCombat
         private static global::System.ReadOnlySpan<byte> GetSpan_SpawnEntityIDOnCombat() => new byte[1 + 21] { 181, 83, 112, 97, 119, 110, 69, 110, 116, 105, 116, 121, 73, 68, 79, 110, 67, 111, 109, 98, 97, 116 };
         // SpawnIntervalSeconds
         private static global::System.ReadOnlySpan<byte> GetSpan_SpawnIntervalSeconds() => new byte[1 + 20] { 180, 83, 112, 97, 119, 110, 73, 110, 116, 101, 114, 118, 97, 108, 83, 101, 99, 111, 110, 100, 115 };
-        // GuardEntityIDs
-        private static global::System.ReadOnlySpan<byte> GetSpan_GuardEntityIDs() => new byte[1 + 14] { 174, 71, 117, 97, 114, 100, 69, 110, 116, 105, 116, 121, 73, 68, 115 };
+        // GarrisonCount
+        private static global::System.ReadOnlySpan<byte> GetSpan_GarrisonCount() => new byte[1 + 13] { 173, 71, 97, 114, 114, 105, 115, 111, 110, 67, 111, 117, 110, 116 };
 
         public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::GameDB.StructureTable value, global::MessagePack.MessagePackSerializerOptions options)
         {
@@ -3139,6 +3412,8 @@ namespace GameDB.Formatters.GameDB
             writer.Write(value.IsRepairable);
             writer.WriteRaw(GetSpan_Description());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.Description, options);
+            writer.WriteRaw(GetSpan_AIProfileID());
+            writer.Write(value.AIProfileID);
             writer.WriteRaw(GetSpan_SoundKey());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.SoundKey, options);
             writer.WriteRaw(GetSpan_DestroyEffectKey());
@@ -3165,14 +3440,12 @@ namespace GameDB.Formatters.GameDB
             writer.Write(value.GenCurrencyGrowthPerLevel);
             writer.WriteRaw(GetSpan_GenResourceInterval());
             writer.Write(value.GenResourceInterval);
-            writer.WriteRaw(GetSpan_EnableSpawning());
-            writer.Write(value.EnableSpawning);
             writer.WriteRaw(GetSpan_SpawnEntityIDOnCombat());
             writer.Write(value.SpawnEntityIDOnCombat);
             writer.WriteRaw(GetSpan_SpawnIntervalSeconds());
             writer.Write(value.SpawnIntervalSeconds);
-            writer.WriteRaw(GetSpan_GuardEntityIDs());
-            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<uint[]>(formatterResolver).Serialize(ref writer, value.GuardEntityIDs, options);
+            writer.WriteRaw(GetSpan_GarrisonCount());
+            writer.Write(value.GarrisonCount);
         }
 
         public global::GameDB.StructureTable Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
@@ -3217,6 +3490,12 @@ namespace GameDB.Formatters.GameDB
                                 ____result.GenResourceID = reader.ReadUInt32();
                                 continue;
 
+                            case 7957705963315814727UL:
+                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 500069396291UL) { goto FAIL; }
+
+                                ____result.GarrisonCount = reader.ReadUInt32();
+                                continue;
+
                         }
                     case 12:
                         if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_IsRepairable().Slice(1))) { goto FAIL; }
@@ -3231,6 +3510,12 @@ namespace GameDB.Formatters.GameDB
                                 if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 7237481UL) { goto FAIL; }
 
                                 ____result.Description = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Deserialize(ref reader, options);
+                                continue;
+
+                            case 7811887657496103233UL:
+                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 4475237UL) { goto FAIL; }
+
+                                ____result.AIProfileID = reader.ReadUInt32();
                                 continue;
 
                             case 4856398142882934869UL:
@@ -3313,23 +3598,6 @@ namespace GameDB.Formatters.GameDB
 
                         ____result.GenResourceInterval = reader.ReadSingle();
                         continue;
-                    case 14:
-                        switch (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey))
-                        {
-                            default: goto FAIL;
-                            case 8093924471496339013UL:
-                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 113723912910689UL) { goto FAIL; }
-
-                                ____result.EnableSpawning = reader.ReadBoolean();
-                                continue;
-
-                            case 8389719453555848519UL:
-                                if (global::MessagePack.Internal.AutomataKeyGen.GetKey(ref stringKey) != 126737127666793UL) { goto FAIL; }
-
-                                ____result.GuardEntityIDs = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<uint[]>(formatterResolver).Deserialize(ref reader, options);
-                                continue;
-
-                        }
                     case 20:
                         if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_SpawnIntervalSeconds().Slice(1))) { goto FAIL; }
 

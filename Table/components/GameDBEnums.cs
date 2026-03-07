@@ -62,6 +62,13 @@ namespace GameDB
 		Beacon = 10, /* 비콘 */
 	}
 
+	public enum E_ZoneType
+	{
+		None = 0, /* 없음 */
+		Ground = 1, /* 지상 */
+		Air = 2, /* 공중 */
+	}
+
 	public enum E_EntityModelType
 	{
 		None = 0, /* 없음 */
@@ -112,7 +119,7 @@ namespace GameDB
 		FlyingEntity = 2, /* 날아다니는 오브젝트 */
 		Jumpable = 4, /* 점프될 수 있는 오브젝트 */
 		Requires_Walkable_Ground = 8, /* 배치을 위해선 지상 경로가 Walkable 이어야한다 */
-		Require_Walkable_Air = 16, /* 배치을 위해선 하늘 경로가 Walkable 이어야한다 */
+		Requires_Walkable_Air = 16, /* 배치을 위해선 하늘 경로가 Walkable 이어야한다 */
 		Require_Jumpable = 32, /* 배치을 위해선 지상 경로가 Jumpable 이어야한다 */
 		Require_Empty_Character = 64, /* 배치를 위해선 해당 타일에 유닛이 없어야한다 */
 		Require_Empty_Occupier = 128, /* 배치를 위해선 해당 타일에 명시적 점유자(e.g 건물)이 없어야한다 */
@@ -133,6 +140,7 @@ namespace GameDB
 		Storage = 5, /* 재화 저장소 */
 		ResourceGenerator = 6, /* 재화 생성소 */
 		Abandoned = 7, /* 버려진 공간 */
+		Obstacle = 8, /* 장애물 */
 	}
 
 	public enum E_CurrencyType
@@ -173,6 +181,18 @@ namespace GameDB
 		Monster = 3, /* 적 몬스터 */
 	}
 
+	public enum E_AITargetingRuleType
+	{
+		None = 0, /* 없음 */
+		NearestAny = 1, /* 가장 가까운 적 아무나 (유닛/건물) */
+		NearestCharacterFirst = 2, /* 가까운 캐릭터 우선적으로 타게팅 */
+		NearestStructureFirst = 3, /* 가까운 건물 우선적으로 타게팅 */
+		NearestAny_IgnoreObstacle = 4, /* 가까운 적 아무나 - Obstacle 건물 제외 */
+		PreferCharacter = 5, /* 캐릭터를 우선적으로 타게팅 */
+		PreferStructure = 6, /* 건물을 우선적으로 타게팅 */
+		HighestAggro = 7, /* 나한테 데미지를 가장 많이 주고 있는 대상 */
+	}
+
 	public enum E_ProjectileTargetingType
 	{
 		None = 0, /* 없음 */
@@ -186,6 +206,7 @@ namespace GameDB
 		None = 0, /* 없음 */
 		Linear = 1, /* 직선 이동 */
 		Curve = 2, /* 포물선 이동 */
+		Bounce = 3, /* 통통 튀기면서 이동 */
 	}
 
 	public enum E_ProjectileCollisionActivationType
@@ -293,7 +314,16 @@ namespace GameDB
 	{
 		None = 0, /* 없음 */
 		Normal = 1, /* 보통 등급 */
-		Legendary = 2, /* 전설 등급 */
+		Rare = 2, /* 희귀 등급 */
+		Unique = 3, /* 유니크 등급 */
+		Legendary = 4, /* 전설 등급 */
+	}
+
+	public enum E_PurchaseContentType
+	{
+		None = 0, /* 없음 */
+		Entity = 1, /* 단일 엔티티 (e.g 건물) */
+		Item = 2, /* 아이템 */
 	}
 
 

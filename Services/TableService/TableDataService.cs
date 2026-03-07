@@ -5,7 +5,7 @@ using Pomelo.EntityFrameworkCore.MySql.Storage.Internal;
 using System.Linq;
 using System.Reflection;
 
-namespace LearningServer01.TableService
+namespace LearningServer01.Services.TableService
 {
     public class TableDataService : ITableService
     {
@@ -130,13 +130,13 @@ namespace LearningServer01.TableService
 
         public void RegisterMessagePackResolvers()
         {
-            MessagePack.Resolvers.DBCompositeResolver.Instance.Register(
+            DBCompositeResolver.Instance.Register(
                 GameDB.Resolvers.GameDBContainerResolver.Instance,
                 MessagePack.Unity.UnityResolver.Instance,
                 MessagePack.Resolvers.StandardResolver.Instance
             );
 
-            var options = MessagePack.MessagePackSerializerOptions.Standard.WithResolver(MessagePack.Resolvers.DBCompositeResolver.Instance);
+            var options = MessagePack.MessagePackSerializerOptions.Standard.WithResolver(DBCompositeResolver.Instance);
             MessagePack.MessagePackSerializer.DefaultOptions = options;
         }
 

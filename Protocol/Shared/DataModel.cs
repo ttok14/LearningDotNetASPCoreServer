@@ -1,6 +1,6 @@
+using GameDB;
 using System.Collections;
 using System.Collections.Generic;
-using GameDB;
 
 namespace JNetwork
 {
@@ -19,7 +19,11 @@ namespace JNetwork
 
     public class StructureSpecificData
     {
-        public List<int> StationedUnitTableIDs { get; set; } = new List<int>();
+        public List<long> GarrisonedItemUIDs { get; set; } = new List<long>();
+        public List<int> GarrisonedEntityTableIDs { get; set; } = new List<int>();
+
+        public long SpawningItemUID { get; set; }
+        public int SpawningItemTableID { get; set; }
     }
 
     public class UserItemNetData
