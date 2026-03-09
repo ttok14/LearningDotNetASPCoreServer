@@ -9,6 +9,7 @@ namespace LearningServer01
         Task<(ERROR_CODE errCode, PlayerInfo? newUser)> RegisterNewPlayerAsync(string id, string password);
 
         Task<ERROR_CODE> EnterNicknameAsync(string id, string nickname);
+        Task<ERROR_CODE> SetStatusMessageAsync(string id, string message);
 
         Task<(ERROR_CODE errCode, PlayerInfo? myInfo)> EnterHomeAsync(string id);
         Task<(ERROR_CODE errCode, PlayerInfo? myInfo, PlayerInfo? opponentInfo)> SearchOpponentAsync(string id);

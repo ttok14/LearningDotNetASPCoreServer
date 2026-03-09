@@ -457,6 +457,24 @@ namespace LearningServer01.Services.PlayerService
             return await _repo.SaveChangesAsync() ? ERROR_CODE.SUCCESS : ERROR_CODE.FAIL_DATABASE_SAVE;
         }
 
+        public async Task<ERROR_CODE> SetStatusMessageAsync(string id, string message)
+        {
+            if (message == null)
+                message = string.Empty;
+
+            if (message.Length > 20)
+                return ERROR_CODE.INVALID_INPUT;
+
+            var me = await _repo.GetPlayerBasicAsync(id);
+
+            if (me == null)
+                return ERROR_CODE.FAIL_INVALID_USER;
+
+            me.StatusMsg = message;
+
+            return await _repo.SaveChangesAsync() ? ERROR_CODE.SUCCESS : ERROR_CODE.FAIL_DATABASE_SAVE;
+        }
+
         public async Task<(ERROR_CODE errCode, PlayerInfo? myInfo)> EnterHomeAsync(string id)
         {
             var me = await _repo.GetPlayerFullAsync(id, isReadonly: true);

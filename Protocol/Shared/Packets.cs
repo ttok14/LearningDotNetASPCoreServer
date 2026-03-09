@@ -52,6 +52,14 @@ namespace JNetwork
         public string Nickname { get; set; }
     }
 
+    public class Req_SetStatusMessage : WebPacketBase
+    {
+        public override Code ID => Code.SetStatusMessage;
+        public override string GetURLPath() => "Player/SetStatusMessage";
+
+        public string Message { get; set; }
+    }
+
     public class Req_EnterHome : WebPacketBase
     {
         public override Code ID => Code.EnterHome;
@@ -227,6 +235,10 @@ namespace JNetwork
     public class Res_EnterNickname : WebResponseBase
     {
 
+    }
+
+    public class Res_SetStatusMessage : WebResponseBase
+    {
     }
 
     public class Res_EnterHome : WebResponseBase

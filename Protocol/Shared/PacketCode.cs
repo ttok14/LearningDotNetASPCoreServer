@@ -10,6 +10,7 @@ namespace JNetwork
         Login = 120,
 
         EnterNickname = 130,
+        SetStatusMessage = 140,
 
         CheatAddCurrency = 200,
 

@@ -125,6 +125,20 @@ namespace LearningServer01.Controllers
             return new Res_EnterNickname() { Result = sres };
         }
 
+        [HttpPost(nameof(SetStatusMessage))]
+        [Authorize]
+        public async Task<Res_SetStatusMessage> SetStatusMessage([FromBody] Req_SetStatusMessage req)
+        {
+            var userId = GetUserID();
+
+            if (string.IsNullOrEmpty(userId))
+                return new Res_SetStatusMessage() { Result = ERROR_CODE.FAIL_INVALID_USER };
+
+            var sres = await _playerService.SetStatusMessageAsync(userId, req.Message);
+
+            return new Res_SetStatusMessage() { Result = sres };
+        }
+
         [HttpPost(nameof(EnterHome))]
         [Authorize]
         public async Task<Res_EnterHome> EnterHome([FromBody] Req_EnterHome req)
