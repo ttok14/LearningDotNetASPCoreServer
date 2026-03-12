@@ -31,6 +31,11 @@ namespace JNetwork
 
         EnterHome = 2000,
         SearchOpponent = 2500,
+        LoadRevenge = 2510,
+        StartBattle = 2550,
+        FinishBattle = 2600,
+
+        RepairEntities = 2700,
 
         BuyItem = 3000,
 
@@ -98,6 +103,7 @@ namespace JNetwork
         #region ====:: 재화 관련 (1500~1600) ::====
         NOT_ENOUGH_CURRENCY = 1500,
         INVALID_CURRENCY_TYPE = 1505,
+        PRICE_CHANGED = 1510,
         #endregion
 
         #region ====:: 건물 관련 (2000~2500)::====
@@ -108,10 +114,24 @@ namespace JNetwork
         NO_GARRISON_UNIT_FOUND = 2055,
 
         GARRISON_SLOT_OUT_OF_INDEX = 2060,
+
+        ENTITY_UNSYNC = 2070,
         #endregion
 
         #region ====:: 매칭 관련 (3000~3500)::====
         SEARCH_OPPONENT_NOT_FOUND = 3000,
+
+        ZOMBIE_ACTIVE_BATTLE_SESSION_EXIST = 3050,
+
+        ACTIVE_BATTLE_SESSION_NOT_EXIST = 3060,
+
+        INVALID_BATTLE_SESSION = 3070,
+
+        ALREADY_REVENGED = 3080,
+        BATTLE_LOG_NOT_FOUND = 3085,
+
+        BATTLE_MODE_INVALID = 3090,
+
         #endregion
 
         #region ====:: 아이템 / 장착 관련 (4000~4500)::====

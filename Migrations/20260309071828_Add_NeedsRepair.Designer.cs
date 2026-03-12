@@ -4,6 +4,7 @@ using LearningServer01;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearningServer01.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260309071828_Add_NeedsRepair")]
+    partial class Add_NeedsRepair
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,64 +24,6 @@ namespace LearningServer01.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
-
-            modelBuilder.Entity("LearningServer01.BattleLogInfo", b =>
-                {
-                    b.Property<long>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("ID"));
-
-                    b.Property<string>("AttackerId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("AttackerNickname")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<byte>("BattleResult")
-                        .HasColumnType("tinyint unsigned");
-
-                    b.Property<string>("DefenderId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("DefenderNickname")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("IsRevenged")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<DateTime>("LogTimeUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("LootedFood")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LootedGold")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LootedWood")
-                        .HasColumnType("int");
-
-                    b.Property<byte>("ModeType")
-                        .HasColumnType("tinyint unsigned");
-
-                    b.Property<string>("SessionId")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("AttackerId");
-
-                    b.HasIndex("DefenderId");
-
-                    b.ToTable("BattleLogs");
-                });
 
             modelBuilder.Entity("LearningServer01.Data.DeploymentSlot", b =>
                 {
@@ -264,25 +209,6 @@ namespace LearningServer01.Migrations
                     b.ToTable("UserItems");
                 });
 
-            modelBuilder.Entity("LearningServer01.BattleLogInfo", b =>
-                {
-                    b.HasOne("LearningServer01.PlayerInfo", "AttackerPlayer")
-                        .WithMany()
-                        .HasForeignKey("AttackerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("LearningServer01.PlayerInfo", "DefenderPlayer")
-                        .WithMany("BattleLogs")
-                        .HasForeignKey("DefenderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("AttackerPlayer");
-
-                    b.Navigation("DefenderPlayer");
-                });
-
             modelBuilder.Entity("LearningServer01.Data.DeploymentSlot", b =>
                 {
                     b.HasOne("LearningServer01.UserItem", "EquippedItem")
@@ -340,8 +266,6 @@ namespace LearningServer01.Migrations
 
             modelBuilder.Entity("LearningServer01.PlayerInfo", b =>
                 {
-                    b.Navigation("BattleLogs");
-
                     b.Navigation("DeploymentSlots");
 
                     b.Navigation("InventoryItems");

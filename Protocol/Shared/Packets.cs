@@ -187,6 +187,50 @@ namespace JNetwork
         public float RotationY { get; set; }
     }
 
+    public class Req_StartBattle : WebPacketBase
+    {
+        public override Code ID => Code.StartBattle;
+        public override string GetURLPath() => "Player/StartBattle";
+
+        public string OpponentPlayerId { get; set; }
+        public S_BattleModeType ModeType { get; set; }
+
+        // 복수 전투 시작 시 사용된 배틀 로그 UID (기본값 0 = 해당 없음)
+        public long TargetBattleLogUid { get; set; } = 0;
+    }
+
+    public class Req_LoadRevenge : WebPacketBase
+    {
+        public override Code ID => Code.LoadRevenge;
+        public override string GetURLPath() => "Player/LoadRevenge";
+
+        public long BattleLogUid { get; set; }
+        public string OpponentId { get; set; }
+    }
+
+    public class Req_FinishBattle : WebPacketBase
+    {
+        public override Code ID => Code.FinishBattle;
+        public override string GetURLPath() => "Player/FinishBattle";
+
+        public string BattleSessionID { get; set; }
+        public string OpponentID { get; set; }
+        public S_BattleResult BattleResult { get; set; }
+        public long[] OpponentDestroyedEntityUIDs { get; set; }
+        public float PlayTime { get; set; }
+    }
+
+    public class Req_RepairEntities : WebPacketBase
+    {
+        public override Code ID => Code.RepairEntities;
+        public override string GetURLPath() => "Player/RepairEntities";
+
+        public long[] TargetEntityUIDs { get; set; }
+        public long ExpectedTotalGold { get; set; }
+        public long ExpectedTotalWood { get; set; }
+        public long ExpectedTotalFood { get; set; }
+    }
+
     #endregion
 
     #region ====:: 응답 DTO ::====
@@ -227,6 +271,7 @@ namespace JNetwork
         public int[] SkillIDs { get; set; }
         public int[] SpellIDs { get; set; }
 
+        public List<BattleLogNetData> BattleLogs { get; set; }
         public List<EntityNetData> Entities { get; set; }
         public List<UserItemNetData> Items { get; set; }
         public List<DeploymentSlotNetData> DeploymentSlots { get; set; }
@@ -249,6 +294,7 @@ namespace JNetwork
 
     public class Res_SearchOpponent : WebResponseBase
     {
+        public string ID { get; set; }
         public string EnemyPlayerNickname { get; set; }
         public string StatusMsg { get; set; }
 
@@ -331,6 +377,51 @@ namespace JNetwork
 
     public class Res_UnequipHero : WebResponseBase
     {
+    }
+
+    public class Res_StartBattle : WebResponseBase
+    {
+        public string SessionId { get; set; }
+    }
+
+    public class Res_LoadRevenge : WebResponseBase
+    {
+        public string ID { get; set; }
+        public string EnemyPlayerNickname { get; set; }
+        public string StatusMsg { get; set; }
+
+        public int OpponentLevel { get; set; }
+        public int Bounty { get; set; }
+        public int StrengthStat { get; set; }
+        public string MapName { get; set; }
+
+        public List<EntityNetData> Entities { get; set; }
+        public BattleDeploymentSlotNetData HeroSlot { get; set; }
+        public List<BattleDeploymentSlotNetData> DeploymentSlots { get; set; }
+    }
+
+    public class Res_FinishBattle : WebResponseBase
+    {
+        public BattleLogNetData AddedBattleLog { get; set; }
+
+        public long[] RemovedBattleLogs { get; set; }
+
+        public long RewardGold { get; set; }
+        public long TotalGold { get; set; }
+        public long RewardWood { get; set; }
+        public long TotalWood { get; set; }
+        public long RewardFood { get; set; }
+        public long TotalFood { get; set; }
+        public int AddedBounty { get; set; }
+        public int TotalBounty { get; set; }
+    }
+
+    public class Res_RepairEntities : WebResponseBase
+    {
+        public long RemainGold { get; set; }
+        public long RemainWood { get; set; }
+        public long RemainFood { get; set; }
+        public long[] RepairedEntityUIDs { get; set; }
     }
 
     #endregion

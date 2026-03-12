@@ -10,11 +10,35 @@ namespace JNetwork
         public long UID { get; set; }
         public int TableID { get; set; }
         public int Level { get; set; }
+        public bool NeedsRepair { get; set; }
+
         public float PositionX { get; set; }
         public float PositionZ { get; set; }
         public float RotationY { get; set; }
 
         public StructureSpecificData StructureData { get; set; }
+    }
+
+    public class BattleLogNetData
+    {
+        public long ID { get; set; }
+        public string SessionId { get; set; }
+
+        public string AttackerId { get; set; }
+        public string AttackerNickname { get; set; }
+        public string DefenderId { get; set; }
+        public string DefenderNickname { get; set; }
+
+        public S_BattleResult BattleResult { get; set; }
+        public S_BattleModeType BattleMode { get; set; }
+
+        public int LootedGold { get; set; }
+        public int LootedWood { get; set; }
+        public int LootedFood { get; set; }
+
+        public bool IsRevenged { get; set; }
+
+        public long LogTimeUtcTicks { get; set; }
     }
 
     public class StructureSpecificData

@@ -4,6 +4,7 @@ using LearningServer01;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearningServer01.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260311072024_FixBattleLogRelation")]
+    partial class FixBattleLogRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,10 +47,6 @@ namespace LearningServer01.Migrations
                     b.Property<string>("DefenderId")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
-
-                    b.Property<string>("DefenderNickname")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<bool>("IsRevenged")
                         .HasColumnType("tinyint(1)");

@@ -2,21 +2,32 @@ using System;
 
 namespace LearningServer01
 {
-    public enum ValidationRes_Entity
-    {
-        None = 0,
+    //public enum PlayerState
+    //{
+    //    None = 0,
 
-        Success,
+    //    Home,
+    //    Matching,
+    //    InBattle,
+    //    FinishedBattle
+    //}
 
-        InvalidTableService,
-        EntityNotExist,
-        InvalidEntityStructure,
-    }
 
-    public enum ValidationContent
-    {
-        None = 0,
+    //public enum ValidationRes_Entity
+    //{
+    //    None = 0,
 
-        EntityIsStructure,
-    }
+    //    Success,
+
+    //    InvalidTableService,
+    //    EntityNotExist,
+    //    InvalidEntityStructure,
+    //}
+
+    //public enum ValidationContent
+    //{
+    //    None = 0,
+
+    //    EntityIsStructure,
+    //}
 }

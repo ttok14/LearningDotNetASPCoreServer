@@ -4,6 +4,7 @@ using LearningServer01;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearningServer01.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260311062746_AddBattleLogs")]
+    partial class AddBattleLogs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,10 +48,6 @@ namespace LearningServer01.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
-                    b.Property<string>("DefenderNickname")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<bool>("IsRevenged")
                         .HasColumnType("tinyint(1)");
 
@@ -67,6 +66,9 @@ namespace LearningServer01.Migrations
                     b.Property<byte>("ModeType")
                         .HasColumnType("tinyint unsigned");
 
+                    b.Property<string>("PlayerInfoID")
+                        .HasColumnType("varchar(255)");
+
                     b.Property<string>("SessionId")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -76,6 +78,8 @@ namespace LearningServer01.Migrations
                     b.HasIndex("AttackerId");
 
                     b.HasIndex("DefenderId");
+
+                    b.HasIndex("PlayerInfoID");
 
                     b.ToTable("BattleLogs");
                 });
@@ -273,10 +277,14 @@ namespace LearningServer01.Migrations
                         .IsRequired();
 
                     b.HasOne("LearningServer01.PlayerInfo", "DefenderPlayer")
-                        .WithMany("BattleLogs")
+                        .WithMany()
                         .HasForeignKey("DefenderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("LearningServer01.PlayerInfo", null)
+                        .WithMany("BattleLogs")
+                        .HasForeignKey("PlayerInfoID");
 
                     b.Navigation("AttackerPlayer");
 

@@ -20,6 +20,7 @@ namespace LearningServer01
                 UID = entityInfo.UID,
                 TableID = entityInfo.TableID,
                 Level = entityInfo.Level,
+                NeedsRepair = entityInfo.NeedsRepair,
                 PositionX = entityInfo.PositionX,
                 PositionZ = entityInfo.PositionZ,
                 RotationY = entityInfo.RotationY,

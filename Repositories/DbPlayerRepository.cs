@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Data.Common;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
+using Serilog;
 
 namespace LearningServer01.Repositories
 {
@@ -43,6 +45,15 @@ namespace LearningServer01.Repositories
             return _context.Players.AnyAsync(p => p.ID == id);
         }
 
+        async Task<(bool res, string nickname)> IPlayerRepository.IsPlayerExistAndGetNicknameByIDAsync(string id)
+        {
+            var player = await GetPlayerBasicAsync(id, isReadonly: true);
+            if (player == null)
+                return (false, string.Empty);
+
+            return (true, player.Nickname);
+        }
+
         Task<bool> IPlayerRepository.IsPlayerExistByNickname(string nickname)
         {
             return _context.Players.AnyAsync(p => p.Nickname == nickname);
@@ -68,13 +79,29 @@ namespace LearningServer01.Repositories
             {
                 query = query.AsNoTracking();
             }
+            try
+            {
+                var player = await
+                    query.Include(p => p.PlacedEntities)
+                        .ThenInclude(e => e.Garrisons)
+                    .Include(p => p.InventoryItems)
+                    .Include(p => p.DeploymentSlots)
+                    .FirstOrDefaultAsync(p => p.ID == id);
 
-            return await
-                query.Include(p => p.PlacedEntities)
-                    .ThenInclude(e => e.Garrisons)
-                .Include(p => p.InventoryItems)
-                .Include(p => p.DeploymentSlots)
-                .FirstOrDefaultAsync(p => p.ID == id);
+                if (player != null)
+                {
+                    player.BattleLogs = await _context.BattleLogs
+                        .Where(b => b.DefenderId == id || b.AttackerId == id)
+                        .ToListAsync();
+                }
+
+                return player;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"GetPlayerFullAsync() 예외 발생 | ID : {id} , isReadonly : {isReadonly} | ex : {ex}");
+                return null;
+            }
         }
 
         //public async Task<bool> UpdateStructuresAsync(string userId, List<StructureItem> structureInfo)
@@ -149,6 +176,7 @@ namespace LearningServer01.Repositories
             {
                 OwnerID = userId,
                 Level = 1,
+                NeedsRepair = false,
                 PositionX = positionX,
                 PositionZ = positionZ,
                 RotationY = rotationY,
@@ -201,11 +229,50 @@ namespace LearningServer01.Repositories
         {
             bool res = await _context.SaveChangesAsync() > 0;
 
-            if (!res)
+            if (res == false)
             {
                 Console.WriteLine($"[WARN] DB 저장 실패 | 위치: {memberName} ({filePath}:{lineNumber})");
             }
             return res;
+        }
+
+        public BattleLogInfo AddBattleLog(
+            string sessionId,
+            string attackerId,
+            string attackerNickname,
+            string defenderId,
+            string defenderNickname,
+            DateTime timeUtc,
+            S_BattleResult result,
+            int lootedGold,
+            int lootedWood,
+            int lootedFood,
+            S_BattleModeType modeType)
+        {
+            var res = new BattleLogInfo()
+            {
+                SessionId = sessionId,
+                AttackerId = attackerId,
+                AttackerNickname = attackerNickname,
+                DefenderId = defenderId,
+                DefenderNickname = defenderNickname,
+                LogTimeUtc = timeUtc,
+                LootedGold = lootedGold,
+                LootedWood = lootedWood,
+                LootedFood = lootedFood,
+                BattleResult = result,
+                ModeType = modeType,
+                IsRevenged = false
+            };
+
+            _context.BattleLogs.Add(res);
+
+            return res;
+        }
+
+        public async Task<BattleLogInfo> GetBattleLogAsync(long logUid)
+        {
+            return await _context.BattleLogs.FirstOrDefaultAsync(l => l.ID == logUid);
         }
     }
 }

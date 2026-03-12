@@ -1,5 +1,6 @@
 using GameDB;
 using JNetwork;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Serilog;
 using System.Numerics;
 
@@ -39,6 +40,31 @@ namespace LearningServer01
                 EquippedItemUID = t.EquippedItemUID ?? 0
             }).ToList();
 
+            res.BattleLogs = info.BattleLogs
+                // 현 플레이어가 공격을 받은 케이스만 추리기 위함
+                //  => 다줌 . 클라에서 필터링 위함
+                // .Where(b => b.DefenderId == info.ID)
+                .Select(b => b.ToBattleLogNetData()).ToList();
+
+            return res;
+        }
+
+        public static Res_FinishBattle ToFinishBattleResponse(
+            this (ERROR_CODE errCode, PlayerInfo? playerInfo, BattleLogInfo resultLog, long rewardGold, long totalGold, long rewardWood, long totalWood, long rewardFood, long totalFood, int addedBounty, int totalBounty) result)
+        {
+            var res = new Res_FinishBattle();
+
+            res.Result = ERROR_CODE.SUCCESS;
+            res.AddedBattleLog = result.resultLog.ToBattleLogNetData();
+            res.RewardGold = result.rewardGold;
+            res.TotalGold = result.totalGold;
+            res.RewardWood = result.rewardWood;
+            res.TotalWood = result.totalWood;
+            res.RewardFood = result.rewardFood;
+            res.TotalFood = result.totalFood;
+            res.AddedBounty = result.addedBounty;
+            res.TotalBounty = result.totalBounty;
+
             return res;
         }
 
@@ -75,6 +101,7 @@ namespace LearningServer01
 
             // 상대 정보 조립
             res.Result = ERROR_CODE.SUCCESS;
+            res.ID = opponent.ID;
             res.EnemyPlayerNickname = opponent.Nickname;
             res.StatusMsg = opponent.StatusMsg;
             res.MapName = opponent.MapName;
@@ -83,6 +110,60 @@ namespace LearningServer01
             res.Bounty = opponent.Bounty;
             res.RemainedGold = me.Gold;
             res.Entities = opponent.PlacedEntities.ToNetDataList(tableService, opponent.InventoryItems);
+
+            // 매칭시에는 Entity 의 상태 여부와 상관없이 무조건
+            // 멀쩡한 상태로 클라에게 건네주어야함 
+            for (int i = 0; i < res.Entities.Count; i++)
+                res.Entities[i].NeedsRepair = false;
+
+            return res;
+        }
+
+        public static Res_LoadRevenge ToLoadRevengeResponse(this PlayerInfo me, PlayerInfo opponent, ITableService tableService)
+        {
+            var res = new Res_LoadRevenge();
+
+            // 내 히어로 슬롯 조립
+            var heroItem = me.InventoryItems.FirstOrDefault(t => t.UID == me.EquippedHeroItemUID);
+            res.HeroSlot = new BattleDeploymentSlotNetData()
+            {
+                SlotIdx = -1,
+                EquippedItemUID = me.EquippedHeroItemUID.Value,
+                TableID = heroItem?.TableID ?? 0
+            };
+
+            // 내 출전 슬롯 조립
+            res.DeploymentSlots = me.DeploymentSlots.OrderBy(t => t.SlotIdx).
+                Select(slot =>
+                {
+                    int tableId = 0;
+
+                    if (slot.EquippedItemUID.HasValue && slot.EquippedItemUID.Value != 0)
+                    {
+                        var item = me.InventoryItems.FirstOrDefault(i => i.UID == slot.EquippedItemUID.Value);
+                        tableId = item?.TableID ?? 0;
+                    }
+                    return new BattleDeploymentSlotNetData()
+                    {
+                        SlotIdx = slot.SlotIdx,
+                        EquippedItemUID = slot.EquippedItemUID ?? 0,
+                        TableID = tableId
+                    };
+                }).ToList();
+
+            res.Result = ERROR_CODE.SUCCESS;
+            res.ID = opponent.ID;
+            res.EnemyPlayerNickname = opponent.Nickname;
+            res.StatusMsg = opponent.StatusMsg;
+            res.MapName = opponent.MapName;
+            res.StrengthStat = opponent.StrengthStat;
+            res.OpponentLevel = opponent.Level;
+            res.Bounty = opponent.Bounty;
+            res.Entities = opponent.PlacedEntities.ToNetDataList(tableService, opponent.InventoryItems);
+
+            // 복수 시에도 건물은 멀쩡한 상태로 전달
+            for (int i = 0; i < res.Entities.Count; i++)
+                res.Entities[i].NeedsRepair = false;
 
             return res;
         }
@@ -117,6 +198,24 @@ namespace LearningServer01
                     res.StructureData = EntityMapper.ToStructureSpecificData(result.structureData, tableService);
                 }
             }
+
+            return res;
+        }
+
+        public static Res_RepairEntities ToRepairEntitiesResponse(
+          this (ERROR_CODE errCode, PlayerInfo? playerInfo, long[] repairedEntityUids) result,
+          ITableService tableService)
+        {
+            if (result.errCode != ERROR_CODE.SUCCESS)
+                return new() { Result = result.errCode };
+
+            var res = new Res_RepairEntities();
+
+            res.Result = ERROR_CODE.SUCCESS;
+            res.RemainGold = result.playerInfo.Gold;
+            res.RemainWood = result.playerInfo.Wood;
+            res.RemainFood = result.playerInfo.Food;
+            res.RepairedEntityUIDs = result.repairedEntityUids;
 
             return res;
         }

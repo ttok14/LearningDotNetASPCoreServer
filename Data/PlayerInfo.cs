@@ -41,5 +41,8 @@ namespace LearningServer01
         public List<DeploymentSlot> DeploymentSlots { get; set; } = new List<DeploymentSlot>();
 
         public List<EntityItemInfo> PlacedEntities { get; set; } = new List<EntityItemInfo>();
+
+        [NotMapped]
+        public List<BattleLogInfo> BattleLogs { get; set; } = new List<BattleLogInfo>();
     }
 }

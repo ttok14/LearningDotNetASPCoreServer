@@ -10,6 +10,8 @@ using LearningServer01.Services.PlayerService;
 using LearningServer01.Config;
 using LearningServer01.Services.AuthService;
 using Serilog;
+using LearningServer01.MemoryCache;
+using LearningServer01.BackgroundServices;
 
 namespace LearningServer01
 {
@@ -53,8 +55,12 @@ namespace LearningServer01
                 builder.Services.Configure<GameSettings>(builder.Configuration.GetSection("GameSettings"));
                 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
+                builder.Services.AddHostedService<GlobalZombieBattleSessionCleaner>();
+
                 builder.Services.AddSingleton<ILockService, LockService>();
                 builder.Services.AddSingleton<ITableService, TableDataService>();
+
+                builder.Services.AddSingleton<ActiveBattleCache>();
 
                 builder.Services.AddScoped<IAuthService, AuthService>();
                 builder.Services.AddScoped<IPlayerService, PlayerService>();

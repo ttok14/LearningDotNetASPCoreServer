@@ -2,6 +2,7 @@ using GameDB;
 using JNetwork;
 using LearningServer01.Config;
 using LearningServer01.Data;
+using LearningServer01.MemoryCache;
 using LearningServer01.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,18 +20,151 @@ namespace LearningServer01.Services.PlayerService
         IPlayerRepository _repo;
         ITableService _tableService;
         ILogger<PlayerService> _logger;
-        GameSettings _gameSettings;
+        //GameSettings _gameSettings;
+        ActiveBattleCache _activeBattleCache;
 
         public PlayerService(
             IPlayerRepository repo,
             ILogger<PlayerService> logger,
             ITableService tableService,
-            IOptions<GameSettings> gameSettingsOptions)
+            ActiveBattleCache activeBattleCache)
+        // IOptions<GameSettings> gameSettingsOptions
         {
             _repo = repo;
             _logger = logger;
             _tableService = tableService;
-            _gameSettings = gameSettingsOptions.Value;
+            _activeBattleCache = activeBattleCache;
+            //  _gameSettings = gameSettingsOptions.Value;
+        }
+
+        public async Task<ERROR_CODE> PostLoginAsync(PlayerInfo? loggedInPlayerInfo)
+        {
+            if (loggedInPlayerInfo == null)
+                return ERROR_CODE.FAIL_INVALID_USER;
+
+            return await CleanZombieBattleSessions(loggedInPlayerInfo.ID);
+        }
+
+        public async Task<ERROR_CODE> CleanZombieBattleSessions(string attackerId)
+        {
+            // 만약 처리되지 않은 공격 전투 로그가 존재하면 기록 처리
+            if (_activeBattleCache.TryRemove(attackerId, out var battleSession))
+            {
+                try
+                {
+                    await AddBattleLog(
+                        battleSession.SessionId,
+                        battleSession.AttackerId,
+                        battleSession.AttackerNickname,
+                        battleSession.DefenderId,
+                        battleSession.DefenderNickname,
+                        DateTime.UtcNow,
+                        S_BattleResult.Lose,
+                        0, 0, 0, battleSession.ModeType);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning($"좀비 세션(SessionId: {battleSession.SessionId}) 정리 실패. 메시지 : {ex.Message}");
+                }
+            }
+
+            return ERROR_CODE.SUCCESS;
+        }
+
+        public async Task<(ERROR_CODE errCode, PlayerInfo? newUser)> RegisterNewPlayerAsync(string id, string password)
+        {
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(password))
+                return (ERROR_CODE.REGISTER_ID_OR_PW_EMPTY, null);
+
+            bool isDuplicate = await _repo.IsPlayerExistByIDAsync(id);
+            if (isDuplicate)
+            {
+                return (ERROR_CODE.REGISTER_FAIL_DUPLICATE, null);
+            }
+
+            var heroTableEntry = _tableService.Container.ItemTable_data.Values.FirstOrDefault(v => v.Type == E_ItemType.Hero);
+
+            if (heroTableEntry == null)
+            {
+                Console.WriteLine($"[ERROR] 아이템 테이블에 히어로(Type==Hero) 가 없어 회원가입 실패");
+                return (ERROR_CODE.NOT_EXIST_IN_TABLE, null);
+            }
+
+            uint heroTableId = heroTableEntry.ID;
+            var heroItem = new UserItem()
+            {
+                OwnerID = id,
+                Level = 1,
+                Quantity = 1,
+                TableID = (int)heroTableId
+            };
+
+            var defaultEntities = DefaultEntities(id);
+            var defaultItems = DefaultItems(id, heroItem);
+            var defaultDeploymentSlots = DefaultDeploymentSlots(id, defaultItems);
+
+            var newPlayer = new PlayerInfo()
+            {
+                ID = id,
+                Password = BCrypt.Net.BCrypt.HashPassword(password),
+                MapName = GetRandomMap(),
+                Level = 1,
+                Nickname = string.Empty,
+                StatusMsg = "제발 쳐들어오지 마세요 ㅜㅜ",
+                Bounty = 1234543,
+                StrengthStat = 959595,
+                Gold = 10000,
+                Wood = 10000,
+                Food = 10000,
+                SkillID01 = 1,
+                SkillID02 = 15,
+                SkillID03 = 12,
+                SpellID01 = 22,
+                SpellID02 = 23,
+                SpellID03 = 24,
+                PlacedEntities = defaultEntities,
+                InventoryItems = defaultItems,
+                DeploymentSlots = defaultDeploymentSlots
+            };
+
+            using (var transaction = await _repo.BeginTransactionAsync())
+            {
+                try
+                {
+                    _repo.AddPlayer(newPlayer);
+
+                    await _repo.SaveChangesAsync();
+
+                    // 사실상 assert 에 가까움. EF 가 무조건 UID 를 0 이아닌 값으로 채웟어야함
+                    // DB 에서 정상적으로 처리가됐다면
+                    // 그래서 만약 여기에 걸릴거라면 애초에 Exception 나서 여기까지 오지않을 것 같기도하다만
+                    // 일단 방어코드로 남김
+                    if (heroItem.UID == 0)
+                    {
+                        Console.WriteLine($"[ERROR] 히어로 아이템의 UID(PK) 가 부여가 되지않음 - 회원가입 실패");
+                        await transaction.RollbackAsync();
+                        return (ERROR_CODE.REGISTER_USER_HERO_ISSUE, null);
+                    }
+
+                    // 이 시점엔 DB 에 의해 PK 발급 완료된 상태이니
+                    // 바로 넣어주면 됨 
+                    newPlayer.EquippedHeroItemUID = heroItem.UID;
+
+                    await _repo.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+
+                    return (ERROR_CODE.SUCCESS, newPlayer);
+                }
+                catch (Exception exp)
+                {
+                    Console.WriteLine($"[ERROR] {exp.ToString()}");
+
+                    await transaction.RollbackAsync();
+
+                    return (ERROR_CODE.EXCEPTION, null);
+                }
+            }
         }
 
 #if DEBUG
@@ -497,7 +631,7 @@ namespace LearningServer01.Services.PlayerService
                 return (ERROR_CODE.FAIL_INVALID_USER, null, null);
 
             // 전투 입장료 체크
-            int entryCost = Temp_BattleCost.MatchEntryGold;
+            int entryCost = TEMP_Data.MatchEntryGold;
 
             if (me.Gold < entryCost)
                 return (ERROR_CODE.NOT_ENOUGH_CURRENCY, null, null);
@@ -520,100 +654,46 @@ namespace LearningServer01.Services.PlayerService
             return (saveRes, me, opponent);
         }
 
-        public async Task<(ERROR_CODE errCode, PlayerInfo? newUser)> RegisterNewPlayerAsync(string id, string password)
+        public async Task<(ERROR_CODE errCode, PlayerInfo? myInfo, PlayerInfo? opponentInfo)> LoadRevengeAsync(
+            string id,
+            long battleLogUid,
+            string opponentId)
         {
-            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(password))
-                return (ERROR_CODE.REGISTER_ID_OR_PW_EMPTY, null);
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(opponentId) || battleLogUid <= 0)
+                return (ERROR_CODE.INVALID_INPUT, null, null);
 
-            bool isDuplicate = await _repo.IsPlayerExistByIDAsync(id);
-            if (isDuplicate)
-            {
-                return (ERROR_CODE.REGISTER_FAIL_DUPLICATE, null);
-            }
+            // 내 정보 조회
+            var me = await _repo.GetPlayerFullAsync(id);
+            if (me == null)
+                return (ERROR_CODE.FAIL_INVALID_USER, null, null);
 
-            var heroTableEntry = _tableService.Container.ItemTable_data.Values.FirstOrDefault(v => v.Type == E_ItemType.Hero);
+            // 배틀 로그 조회
+            var battleLog = await _repo.GetBattleLogAsync(battleLogUid);
+            if (battleLog == null)
+                return (ERROR_CODE.BATTLE_LOG_NOT_FOUND, null, null);
 
-            if (heroTableEntry == null)
-            {
-                Console.WriteLine($"[ERROR] 아이템 테이블에 히어로(Type==Hero) 가 없어 회원가입 실패");
-                return (ERROR_CODE.NOT_EXIST_IN_TABLE, null);
-            }
+            // 방어자가 요청자 본인인지 검증
+            if (battleLog.DefenderId != id)
+                return (ERROR_CODE.FAIL_INVALID_USER, null, null);
 
-            uint heroTableId = heroTableEntry.ID;
-            var heroItem = new UserItem()
-            {
-                OwnerID = id,
-                Level = 1,
-                Quantity = 1,
-                TableID = (int)heroTableId
-            };
+            // 로그의 AttackerId 가 일치하는지 검증
+            if (battleLog.AttackerId != opponentId)
+                return (ERROR_CODE.FAIL_INVALID_USER, null, null);
 
-            var defaultEntities = DefaultEntities(id);
-            var defaultItems = DefaultItems(id, heroItem);
-            var defaultDeploymentSlots = DefaultDeploymentSlots(id, defaultItems);
+            // 이미 복수했는지 검증
+            if (battleLog.IsRevenged)
+                return (ERROR_CODE.ALREADY_REVENGED, null, null);
 
-            var newPlayer = new PlayerInfo()
-            {
-                ID = id,
-                Password = BCrypt.Net.BCrypt.HashPassword(password),
-                MapName = GetRandomMap(),
-                Level = 1,
-                Nickname = string.Empty,
-                StatusMsg = "제발 쳐들어오지 마세요 ㅜㅜ",
-                Bounty = 1234543,
-                StrengthStat = 959595,
-                Gold = 10000,
-                Wood = 10000,
-                Food = 10000,
-                SkillID01 = 1,
-                SkillID02 = 15,
-                SkillID03 = 12,
-                SpellID01 = 22,
-                SpellID02 = 23,
-                SpellID03 = 24,
-                PlacedEntities = defaultEntities,
-                InventoryItems = defaultItems,
-                DeploymentSlots = defaultDeploymentSlots
-            };
+            // 전투로그가 최초에 검색으로 생긴건지 검증
+            if (battleLog.ModeType != S_BattleModeType.Search)
+                return (ERROR_CODE.BATTLE_MODE_INVALID, null, null);
 
-            using (var transaction = await _repo.BeginTransactionAsync())
-            {
-                try
-                {
-                    _repo.AddPlayer(newPlayer);
+            // 복수 대상 정보 조회
+            var opponent = await _repo.GetPlayerFullAsync(opponentId, isReadonly: true);
+            if (opponent == null)
+                return (ERROR_CODE.SEARCH_OPPONENT_NOT_FOUND, null, null);
 
-                    await _repo.SaveChangesAsync();
-
-                    // 사실상 assert 에 가까움. EF 가 무조건 UID 를 0 이아닌 값으로 채웟어야함
-                    // DB 에서 정상적으로 처리가됐다면
-                    // 그래서 만약 여기에 걸릴거라면 애초에 Exception 나서 여기까지 오지않을 것 같기도하다만
-                    // 일단 방어코드로 남김
-                    if (heroItem.UID == 0)
-                    {
-                        Console.WriteLine($"[ERROR] 히어로 아이템의 UID(PK) 가 부여가 되지않음 - 회원가입 실패");
-                        await transaction.RollbackAsync();
-                        return (ERROR_CODE.REGISTER_USER_HERO_ISSUE, null);
-                    }
-
-                    // 이 시점엔 DB 에 의해 PK 발급 완료된 상태이니
-                    // 바로 넣어주면 됨 
-                    newPlayer.EquippedHeroItemUID = heroItem.UID;
-
-                    await _repo.SaveChangesAsync();
-
-                    await transaction.CommitAsync();
-
-                    return (ERROR_CODE.SUCCESS, newPlayer);
-                }
-                catch (Exception exp)
-                {
-                    Console.WriteLine($"[ERROR] {exp.ToString()}");
-
-                    await transaction.RollbackAsync();
-
-                    return (ERROR_CODE.EXCEPTION, null);
-                }
-            }
+            return (ERROR_CODE.SUCCESS, me, opponent);
         }
 
         async Task<(ERROR_CODE errCode, long uid, int remainedGold, int remainedWood, int remainedFood, StructureTable? structureData)> IPlayerService.CreateStructureAsync(string id, int tableId, float posX, float posZ, float rotY)
@@ -672,6 +752,208 @@ namespace LearningServer01.Services.PlayerService
             _repo.RemoveEntity(targetEntity);
 
             return await _repo.SaveChangesAsync() ? ERROR_CODE.SUCCESS : ERROR_CODE.FAIL_DATABASE_SAVE;
+        }
+
+        public async Task<(ERROR_CODE errCode, PlayerInfo? playerInfo, BattleLogInfo resultLog, long rewardGold, long totalGold, long rewardWood, long totalWood, long rewardFood, long totalFood, int addedBounty, int totalBounty)>
+            FinishBattleAsync(string id, string battleSessionId, string opponentId, S_BattleResult battleResult, long[] destroyedEntityUids, float playTime)
+        {
+            var player = await _repo.GetPlayerBasicAsync(id);
+            if (player == null)
+                return (ERROR_CODE.FAIL_INVALID_USER, null, null, 0, 0, 0, 0, 0, 0, 0, 0);
+
+            // 만약에 현재 메모리로 관리하는 전투 세션에 없다면
+            // 제한 시간 Timeout 이 된 후에 Finish 를 보낸 케이스일 것임.
+            // 아마 홈버튼눌렀다가 나중에 들어왔던지 뭐 이런 케이스일 확률이 클텐데
+            // 이 경우는 이미 비정상적인 상황으로, 시스템 자체에서 ZombieCleaner 에 의해서
+            // 삭제되었을 것이므로 (자동 패배 처리) 여기서는 실패 띄우면 됨.
+            if (_activeBattleCache.TryPopTargetSession(id, battleSessionId, out var session) == false)
+                return (ERROR_CODE.ACTIVE_BATTLE_SESSION_NOT_EXIST, null, null, 0, 0, 0, 0, 0, 0, 0, 0);
+
+            var opponent = await _repo.GetPlayerFullAsync(opponentId);
+
+            if (opponent == null)
+            {
+                _logger.LogError($"전투 결과 처리중 Opponent 유저의 ID 를 찾는데 실패하였습니다. | 침공자 ID : {id}, Opponent ID : {opponentId}");
+                return (ERROR_CODE.FAIL_INVALID_USER, null, null, 0, 0, 0, 0, 0, 0, 0, 0);
+            }
+
+            // 기본 보상 계산 (결과에 따라)
+            int baseGold, baseWood, baseFood, baseBounty;
+            switch (battleResult)
+            {
+                case S_BattleResult.Win:
+                    baseGold = TEMP_Data.WinGold;
+                    baseWood = TEMP_Data.WinWood;
+                    baseFood = TEMP_Data.WinFood;
+                    baseBounty = TEMP_Data.WinBounty;
+                    break;
+                case S_BattleResult.Lose:
+                    baseGold = TEMP_Data.LoseGold;
+                    baseWood = TEMP_Data.LoseWood;
+                    baseFood = TEMP_Data.LoseFood;
+                    baseBounty = TEMP_Data.LoseBounty;
+                    break;
+                case S_BattleResult.Draw:
+                    baseGold = TEMP_Data.DrawGold;
+                    baseWood = TEMP_Data.DrawWood;
+                    baseFood = TEMP_Data.DrawFood;
+                    baseBounty = TEMP_Data.DrawBounty;
+                    break;
+                default:
+                    return (ERROR_CODE.INVALID_INPUT, null, null, 0, 0, 0, 0, 0, 0, 0, 0);
+            }
+
+            // 파괴한 건물 수에 비례한 추가 골드
+            var destroyedEntityUidSet = new HashSet<long>(destroyedEntityUids?.Length ?? 0);
+            if (destroyedEntityUids != null)
+            {
+                for (int i = 0; i < destroyedEntityUids.Length; i++)
+                {
+                    destroyedEntityUidSet.Add(destroyedEntityUids[i]);
+                }
+            }
+
+            int destroyedCount = 0;
+
+            if (destroyedEntityUidSet.Count > 0)
+            {
+                // 실제로 적 플레이어가 가지고 있는 Entity 인지
+                // 검증한 후에 카운트 계산
+                foreach (var entity in opponent.PlacedEntities)
+                {
+                    if (destroyedEntityUidSet.Contains(entity.UID))
+                    {
+                        if (entity.NeedsRepair == false)
+                            entity.NeedsRepair = true;
+
+                        destroyedCount++;
+                    }
+                }
+            }
+
+            int bonusGold = destroyedCount * TEMP_Data.GoldPerDestroyedEntity;
+
+            int rewardGold = baseGold + bonusGold;
+            int rewardWood = baseWood;
+            int rewardFood = baseFood;
+            int addedBounty = baseBounty;
+
+            // 재화 처리 
+            player.Gold += rewardGold;
+            player.Wood += rewardWood;
+            player.Food += rewardFood;
+
+            // 현상금 처리
+            player.Bounty += addedBounty;
+
+            if (player.Bounty < 0)
+                player.Bounty = 0;
+
+            try
+            {
+                var resLog = await AddBattleLog(
+                    session.SessionId,
+                    session.AttackerId,
+                    session.AttackerNickname,
+                    session.DefenderId,
+                    session.DefenderNickname,
+                    DateTime.UtcNow,
+                    battleResult,
+                    rewardGold,
+                    rewardWood,
+                    rewardFood,
+                    session.ModeType,
+                    dbSave: false);
+
+                if (resLog.errCode != ERROR_CODE.SUCCESS)
+                    return (ERROR_CODE.FAIL_DATABASE_SAVE, null, null, 0, 0, 0, 0, 0, 0, 0, 0);
+
+                var res = await _repo.SaveChangesAsync();
+
+                if (res == false)
+                    return (ERROR_CODE.FAIL_DATABASE_SAVE, null, null, 0, 0, 0, 0, 0, 0, 0, 0);
+
+                return (ERROR_CODE.SUCCESS, player, resLog.resultLog, rewardGold, player.Gold, rewardWood, player.Wood, rewardFood, player.Food, addedBounty, player.Bounty);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"FinishBattle 중 치명적 에러: {ex}");
+                return (ERROR_CODE.EXCEPTION, null, null, 0, 0, 0, 0, 0, 0, 0, 0);
+            }
+        }
+
+        public async Task<(ERROR_CODE errCode, PlayerInfo? playerInfo, long[] repairedEntityUids)>
+            RepairEntitiesAsync(string id, long[] targetEntityUids, long expectedGold, long expectedWood, long expectedFood)
+        {
+            if (targetEntityUids == null || targetEntityUids.Length == 0)
+                return (ERROR_CODE.NO_TARGET_ENTITY_FOUND, null, null);
+
+            var player = await _repo.GetPlayerFullAsync(id);
+
+            if (player == null || player.PlacedEntities == null)
+                return (ERROR_CODE.FAIL_INVALID_USER, null, null);
+
+            var targetSet = new HashSet<long>(targetEntityUids);
+            var toRepair = new List<EntityItemInfo>();
+
+            // 유저의 소유 건물 중 요청 UID와 일치하며 수리가 필요한 것 필터
+            foreach (var entity in player.PlacedEntities)
+            {
+                if (entity.NeedsRepair)
+                {
+                    if (targetSet.Contains(entity.UID))
+                    {
+                        toRepair.Add(entity);
+                    }
+                    else
+                    {
+                        // 서버에선 수리해야하는 상태인데 클라 데이터인 targetSet 에 없다면 싱크 어긋난 상태임
+                        return (ERROR_CODE.ENTITY_UNSYNC, null, null);
+                    }
+                }
+            }
+
+            if (toRepair.Count != targetSet.Count)
+                return (ERROR_CODE.NO_TARGET_ENTITY_FOUND, null, null);
+
+            // 총 필요 비용 산출 (현재는 임시로 일괄 50, 10, 10 사용)
+            long totalCostGold = (long)toRepair.Count * TEMP_Data.RepairCostGold;
+            long totalCostWood = (long)toRepair.Count * TEMP_Data.RepairCostWood;
+            long totalCostFood = (long)toRepair.Count * TEMP_Data.RepairCostFood;
+
+            // 클라이언트가 예상한 비용이 다르면 실패 (가격 정보 불일치 방어)
+            if (totalCostGold != expectedGold || totalCostWood != expectedWood || totalCostFood != expectedFood)
+            {
+                _logger.LogError($@"
+실제 수리 비용과 클라로부터 받아온 기대 비용이 서로 다릅니다.
+(totalCostGold : {totalCostGold}, expectedGold : {expectedGold}),
+(totalCostWood : {totalCostWood}, expectedWood : {expectedWood}),
+(totalCostFood : {totalCostFood}, expectedFood : {expectedFood})");
+
+                return (ERROR_CODE.PRICE_CHANGED, null, null);
+            }
+
+            // 재화 검증
+            if (player.Gold < totalCostGold || player.Wood < totalCostWood || player.Food < totalCostFood)
+            {
+                return (ERROR_CODE.NOT_ENOUGH_CURRENCY, null, null);
+            }
+
+            // 수리 재화 처리
+            player.Gold -= (int)totalCostGold;
+            player.Wood -= (int)totalCostWood;
+            player.Food -= (int)totalCostFood;
+
+            for (int i = 0; i < toRepair.Count; i++)
+            {
+                toRepair[i].NeedsRepair = false;
+            }
+
+            var res = await _repo.SaveChangesAsync();
+            if (res == false)
+                return (ERROR_CODE.FAIL_DATABASE_SAVE, null, null);
+
+            return (ERROR_CODE.SUCCESS, player, targetEntityUids.ToArray());
         }
 
         //------------------------------------------------------//
@@ -835,6 +1117,71 @@ namespace LearningServer01.Services.PlayerService
             player.SpellID03 = spellSet[2];
 
             return await _repo.SaveChangesAsync() ? ERROR_CODE.SUCCESS : ERROR_CODE.FAIL_DATABASE_SAVE;
+        }
+
+        public async Task<(ERROR_CODE errCode, BattleLogInfo resultLog)> AddBattleLog(
+            string sessionId,
+            string attackerId,
+            string attackerNickname,
+            string defenderId,
+            string defenderNickname,
+            DateTime timeUtc,
+            S_BattleResult result,
+            int lootedGold,
+            int lootedWood,
+            int lootedFood,
+            S_BattleModeType modeType,
+            bool dbSave = true)
+        {
+            if (string.IsNullOrEmpty(attackerId) || string.IsNullOrEmpty(defenderId))
+                return (ERROR_CODE.FAIL_INVALID_USER, null);
+
+            var resLog = _repo.AddBattleLog(sessionId, attackerId, attackerNickname, defenderId, defenderNickname, timeUtc, result, lootedGold, lootedWood, lootedFood, modeType);
+
+            if (dbSave == false)
+                return (ERROR_CODE.SUCCESS, resLog);
+
+            return await _repo.SaveChangesAsync() ? (ERROR_CODE.SUCCESS, resLog) : (ERROR_CODE.FAIL_DATABASE_SAVE, null);
+        }
+
+        public async Task<(ERROR_CODE errCode, string generatedSessionId)> StartBattle(string id, string opponentPlayerId, S_BattleModeType modeType, long targetBattleLogUid = 0)
+        {
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(opponentPlayerId))
+                return (ERROR_CODE.FAIL_INVALID_USER, string.Empty);
+
+            var playerRes = await _repo.IsPlayerExistAndGetNicknameByIDAsync(id);
+            if (playerRes.res == false)
+                return (ERROR_CODE.FAIL_INVALID_USER, string.Empty);
+
+            var opponentPlayer = await _repo.GetPlayerBasicAsync(opponentPlayerId, isReadonly: true);
+            if (opponentPlayer == null)
+                return (ERROR_CODE.FAIL_INVALID_USER, string.Empty);
+
+            // 복수 모드: StartBattle 확정 시점에 IsRevenged = true 처리 (복수권 즉시 소진)
+            if (modeType == S_BattleModeType.Revenge && targetBattleLogUid > 0)
+            {
+                var battleLog = await _repo.GetBattleLogAsync(targetBattleLogUid);
+
+                if (battleLog == null || battleLog.DefenderId != id)
+                    return (ERROR_CODE.BATTLE_LOG_NOT_FOUND, string.Empty);
+
+                if (battleLog.IsRevenged)
+                    return (ERROR_CODE.ALREADY_REVENGED, string.Empty);
+
+                battleLog.IsRevenged = true;
+
+                bool saveRes = await _repo.SaveChangesAsync();
+                if (saveRes == false)
+                    return (ERROR_CODE.FAIL_DATABASE_SAVE, string.Empty);
+            }
+
+            string newSessionId = Guid.NewGuid().ToString("N");
+
+            var registerRes = _activeBattleCache.TryRegister(newSessionId, id, playerRes.nickname, opponentPlayerId, opponentPlayer.Nickname, modeType);
+            if (registerRes != ERROR_CODE.SUCCESS)
+                return (registerRes, string.Empty);
+
+            return (ERROR_CODE.SUCCESS, newSessionId);
         }
     }
 }

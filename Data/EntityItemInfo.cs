@@ -21,6 +21,8 @@ namespace LearningServer01.Data
         public float PositionZ { get; set; }
         public float RotationY { get; set; }
 
+        public bool NeedsRepair { get; set; }
+
         public List<EntityGarrisonInfo> Garrisons { get; set; } = new List<EntityGarrisonInfo>();
 
         [ForeignKey(nameof(OwnerID))]

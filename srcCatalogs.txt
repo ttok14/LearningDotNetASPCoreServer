@@ -1,0 +1,14 @@
+Protocol/
+TEMP/
+Data/
+Common/
+Table/components/
+Services/
+Config/
+Filters/
+Mapper/
+Repositories/
+Controllers/
+MemoryCache/
+AppDbContext.cs
+Program.cs

@@ -21,12 +21,28 @@ namespace LearningServer01.Repositories
 
         void AddPlayer(PlayerInfo info);
         Task<bool> IsPlayerExistByIDAsync(string id);
+        Task<(bool res, string nickname)> IsPlayerExistAndGetNicknameByIDAsync(string id);
         Task<bool> IsPlayerExistByNickname(string nickname);
 
         Task<(ERROR_CODE errCode, long uid, int remainedGold, int remainedWood, int remainedFood)> CreateStructure(string userId, int tableId, float positionX, float positionZ, float rotationY, GameDB.E_CurrencyType costType, int costPrice);
 
-        public void RemoveEntity(EntityItemInfo entity);
+        void RemoveEntity(EntityItemInfo entity);
 
         Task<PlayerInfo> GetRandomOpponentAsync(string excludeUserId);
+
+        BattleLogInfo AddBattleLog(
+            string sessionId,
+            string attackerId,
+            string attackerNickname,
+            string defenderId,
+            string defenderNickname,
+            DateTime timeUtc,
+            S_BattleResult result,
+            int lootedGold,
+            int lootedWood,
+            int lootedFood,
+            S_BattleModeType modeType);
+
+        Task<BattleLogInfo> GetBattleLogAsync(long logUid);
     }
 }

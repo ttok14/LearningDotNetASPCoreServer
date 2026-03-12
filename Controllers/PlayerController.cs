@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using LearningServer01.Services.AuthService;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LearningServer01.Controllers
 {
@@ -103,12 +104,16 @@ namespace LearningServer01.Controllers
             if (req == null)
                 return new Res_Login() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
 
-            var sres = await _authService.LoginAsync(req.AccountID, req.Password);
+            var authRes = await _authService.LoginAsync(req.AccountID, req.Password);
 
-            if (sres.errCode != ERROR_CODE.SUCCESS)
-                return new Res_Login() { Result = sres.errCode };
+            if (authRes.errCode != ERROR_CODE.SUCCESS)
+                return new Res_Login() { Result = authRes.errCode };
 
-            return sres.loggedInPlayerInfo.ToLoginResponse(sres.token, _tableService);
+            var playerRes = await _playerService.PostLoginAsync(authRes.loggedInPlayerInfo);
+            if (playerRes != ERROR_CODE.SUCCESS)
+                return new() { Result = playerRes };
+
+            return authRes.loggedInPlayerInfo.ToLoginResponse(authRes.token, _tableService);
         }
 
         [HttpPost(nameof(EnterNickname))]
@@ -173,6 +178,26 @@ namespace LearningServer01.Controllers
             var opponent = sres.opponentInfo;
 
             return sres.myInfo.ToSearchOpponentResponse(opponent, _tableService);
+        }
+
+        [HttpPost(nameof(LoadRevenge))]
+        [Authorize]
+        public async Task<Res_LoadRevenge> LoadRevenge([FromBody] Req_LoadRevenge req)
+        {
+            if (req == null)
+                return new Res_LoadRevenge() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
+
+            var userId = GetUserID();
+
+            if (string.IsNullOrEmpty(userId))
+                return new Res_LoadRevenge() { Result = ERROR_CODE.FAIL_INVALID_USER };
+
+            var sres = await _playerService.LoadRevengeAsync(userId, req.BattleLogUid, req.OpponentId);
+
+            if (sres.errCode != ERROR_CODE.SUCCESS)
+                return new Res_LoadRevenge() { Result = sres.errCode };
+
+            return sres.myInfo.ToLoadRevengeResponse(sres.opponentInfo, _tableService);
         }
 
 #if DEBUG
@@ -463,6 +488,77 @@ namespace LearningServer01.Controllers
             res.Result = await _playerService.UnequipHeroAsync(userId);
 
             return res;
+        }
+
+        [HttpPost(nameof(StartBattle))]
+        [Authorize]
+        public async Task<Res_StartBattle> StartBattle([FromBody] Req_StartBattle req)
+        {
+            if (req == null)
+                return new() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
+
+            var userId = GetUserID();
+
+            if (string.IsNullOrEmpty(userId))
+                return new() { Result = ERROR_CODE.FAIL_INVALID_USER };
+
+            var sres = await _playerService.StartBattle(userId, req.OpponentPlayerId, req.ModeType, req.TargetBattleLogUid);
+
+            if (sres.errCode != ERROR_CODE.SUCCESS)
+                return new() { Result = sres.errCode };
+
+            var res = new Res_StartBattle();
+
+            res.Result = ERROR_CODE.SUCCESS;
+            res.SessionId = sres.generatedSessionId;
+
+            return res;
+        }
+
+        [HttpPost(nameof(FinishBattle))]
+        [Authorize]
+        public async Task<Res_FinishBattle> FinishBattle([FromBody] Req_FinishBattle req)
+        {
+            if (req == null)
+                return new Res_FinishBattle() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
+
+            var userId = GetUserID();
+
+            if (string.IsNullOrEmpty(userId))
+                return new Res_FinishBattle() { Result = ERROR_CODE.FAIL_INVALID_USER };
+
+            var sres = await _playerService.FinishBattleAsync(
+                userId,
+                req.BattleSessionID,
+                req.OpponentID,
+                req.BattleResult,
+                req.OpponentDestroyedEntityUIDs,
+                req.PlayTime);
+
+            if (sres.errCode != ERROR_CODE.SUCCESS)
+                return new() { Result = sres.errCode };
+
+            return sres.ToFinishBattleResponse();
+        }
+
+        [HttpPost(nameof(RepairEntities))]
+        [Authorize]
+        public async Task<Res_RepairEntities> RepairEntities([FromBody] Req_RepairEntities req)
+        {
+            if (req == null || req.TargetEntityUIDs == null || req.TargetEntityUIDs.Length == 0)
+                return new Res_RepairEntities() { Result = ERROR_CODE.FAIL_EMPTY_REQUEST };
+
+            var userId = GetUserID();
+
+            if (string.IsNullOrEmpty(userId))
+                return new Res_RepairEntities() { Result = ERROR_CODE.FAIL_INVALID_USER };
+
+            var sres = await _playerService.RepairEntitiesAsync(userId, req.TargetEntityUIDs, req.ExpectedTotalGold, req.ExpectedTotalWood, req.ExpectedTotalFood);
+
+            if (sres.errCode != ERROR_CODE.SUCCESS)
+                return new() { Result = sres.errCode };
+
+            return sres.ToRepairEntitiesResponse(_tableService);
         }
     }
 }
