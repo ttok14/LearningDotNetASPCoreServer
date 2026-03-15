@@ -1355,8 +1355,12 @@ namespace GameDB.Formatters.GameDB
         private static global::System.ReadOnlySpan<byte> GetSpan_Name() => new byte[1 + 4] { 164, 78, 97, 109, 101 };
         // Description
         private static global::System.ReadOnlySpan<byte> GetSpan_Description() => new byte[1 + 11] { 171, 68, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110 };
-        // SpriteKey
-        private static global::System.ReadOnlySpan<byte> GetSpan_SpriteKey() => new byte[1 + 9] { 169, 83, 112, 114, 105, 116, 101, 75, 101, 121 };
+        // SmallIconKey
+        private static global::System.ReadOnlySpan<byte> GetSpan_SmallIconKey() => new byte[1 + 12] { 172, 83, 109, 97, 108, 108, 73, 99, 111, 110, 75, 101, 121 };
+        // MediumIconKey
+        private static global::System.ReadOnlySpan<byte> GetSpan_MediumIconKey() => new byte[1 + 13] { 173, 77, 101, 100, 105, 117, 109, 73, 99, 111, 110, 75, 101, 121 };
+        // BigIconKey
+        private static global::System.ReadOnlySpan<byte> GetSpan_BigIconKey() => new byte[1 + 10] { 170, 66, 105, 103, 73, 99, 111, 110, 75, 101, 121 };
 
         public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::GameDB.CurrencyTable value, global::MessagePack.MessagePackSerializerOptions options)
         {
@@ -1367,7 +1371,7 @@ namespace GameDB.Formatters.GameDB
             }
 
             var formatterResolver = options.Resolver;
-            writer.WriteMapHeader(5);
+            writer.WriteMapHeader(7);
             writer.WriteRaw(GetSpan_ID());
             writer.Write(value.ID);
             writer.WriteRaw(GetSpan_Type());
@@ -1376,8 +1380,12 @@ namespace GameDB.Formatters.GameDB
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.Name, options);
             writer.WriteRaw(GetSpan_Description());
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.Description, options);
-            writer.WriteRaw(GetSpan_SpriteKey());
-            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.SpriteKey, options);
+            writer.WriteRaw(GetSpan_SmallIconKey());
+            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.SmallIconKey, options);
+            writer.WriteRaw(GetSpan_MediumIconKey());
+            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.MediumIconKey, options);
+            writer.WriteRaw(GetSpan_BigIconKey());
+            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.BigIconKey, options);
         }
 
         public global::GameDB.CurrencyTable Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
@@ -1422,10 +1430,20 @@ namespace GameDB.Formatters.GameDB
 
                         ____result.Description = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Deserialize(ref reader, options);
                         continue;
-                    case 9:
-                        if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_SpriteKey().Slice(1))) { goto FAIL; }
+                    case 12:
+                        if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_SmallIconKey().Slice(1))) { goto FAIL; }
 
-                        ____result.SpriteKey = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Deserialize(ref reader, options);
+                        ____result.SmallIconKey = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Deserialize(ref reader, options);
+                        continue;
+                    case 13:
+                        if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_MediumIconKey().Slice(1))) { goto FAIL; }
+
+                        ____result.MediumIconKey = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Deserialize(ref reader, options);
+                        continue;
+                    case 10:
+                        if (!global::System.MemoryExtensions.SequenceEqual(stringKey, GetSpan_BigIconKey().Slice(1))) { goto FAIL; }
+
+                        ____result.BigIconKey = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Deserialize(ref reader, options);
                         continue;
 
                 }

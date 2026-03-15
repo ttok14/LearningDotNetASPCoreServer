@@ -16,8 +16,7 @@ namespace LearningServer01.Repositories
 
         Task<DbTransaction> BeginTransactionAsync();
 
-        Task<PlayerInfo> GetPlayerBasicAsync(string id, bool isReadonly = false);
-        Task<PlayerInfo> GetPlayerFullAsync(string id, bool isReadonly = false);
+        Task<PlayerInfo> GetPlayerAsync(string id, E_PlayerInclude includes = E_PlayerInclude.None, bool isReadonly = false);
 
         void AddPlayer(PlayerInfo info);
         Task<bool> IsPlayerExistByIDAsync(string id);
@@ -28,7 +27,7 @@ namespace LearningServer01.Repositories
 
         void RemoveEntity(EntityItemInfo entity);
 
-        Task<PlayerInfo> GetRandomOpponentAsync(string excludeUserId);
+        Task<(PlayerInfo? opponent, bool foundInExcluede)> GetRandomOpponentAsync(string askerId, IReadOnlyList<string> excludeIds);
 
         BattleLogInfo AddBattleLog(
             string sessionId,

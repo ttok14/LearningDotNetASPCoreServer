@@ -62,6 +62,8 @@ namespace LearningServer01
 
                 builder.Services.AddSingleton<ActiveBattleCache>();
 
+                builder.Services.AddSingleton<PlayerMatchingContextCache>();
+
                 builder.Services.AddScoped<IAuthService, AuthService>();
                 builder.Services.AddScoped<IPlayerService, PlayerService>();
                 #endregion

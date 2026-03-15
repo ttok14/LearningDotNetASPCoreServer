@@ -63,7 +63,7 @@ namespace LearningServer01.Services.AuthService
 
         async Task<(ERROR_CODE errCode, string token, PlayerInfo? loggedInPlayerInfo)> IAuthService.LoginAsync(string id, string userPassword)
         {
-            var player = await _repo.GetPlayerFullAsync(id, isReadonly: true);
+            var player = await _repo.GetPlayerAsync(id, E_PlayerInclude.Full, isReadonly: true);
 
             if (player == null)
                 return (ERROR_CODE.FAIL_INVALID_USER, string.Empty, null);

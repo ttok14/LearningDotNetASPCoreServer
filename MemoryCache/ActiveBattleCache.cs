@@ -99,8 +99,10 @@ namespace LearningServer01.MemoryCache
             lock (_lockObj)
             {
                 bool attackerRemoved = _battleSessionsByAttackerId.TryRemove(attackerId, out removedSession);
-                if (attackerRemoved == false)
-                    _logger.LogError($"AttackerID 제거 실패 | AttackerId : {attackerId}");
+
+                // 이거 없다해서 에러 판정 ㄴㄴ
+                //if (attackerRemoved == false)
+                //    _logger.LogError($"AttackerID 제거 실패 | AttackerId : {attackerId}");
 
                 bool defenderRemoved = false;
 

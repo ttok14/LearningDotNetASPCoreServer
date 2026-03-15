@@ -5,11 +5,12 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Data.Common;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Serilog;
+using System.Data.Common;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace LearningServer01.Repositories
 {
@@ -47,7 +48,7 @@ namespace LearningServer01.Repositories
 
         async Task<(bool res, string nickname)> IPlayerRepository.IsPlayerExistAndGetNicknameByIDAsync(string id)
         {
-            var player = await GetPlayerBasicAsync(id, isReadonly: true);
+            var player = await GetPlayerAsync(id, E_PlayerInclude.None, isReadonly: true);
             if (player == null)
                 return (false, string.Empty);
 
@@ -59,7 +60,43 @@ namespace LearningServer01.Repositories
             return _context.Players.AnyAsync(p => p.Nickname == nickname);
         }
 
-        public async Task<PlayerInfo> GetPlayerBasicAsync(string id, bool isReadonly = false)
+        //async Task<PlayerInfo> GetPlayerInfoQueryableAsync(IQueryable<PlayerInfo> info, E_PlayerInclude includes = E_PlayerInclude.None, bool isReadonly = false)
+        //{
+        //    if (isReadonly)
+        //    {
+        //        info = info.AsNoTracking();
+        //    }
+
+        //    if (includes.HasFlag(E_PlayerInclude.PlacedEntities))
+        //        info = info.Include(p => p.PlacedEntities).ThenInclude(e => e.Garrisons);
+
+        //    if (includes.HasFlag(E_PlayerInclude.InventoryItems))
+        //        info = info.Include(p => p.InventoryItems);
+
+        //    if (includes.HasFlag(E_PlayerInclude.DeploymentSlots))
+        //        info = info.Include(p => p.DeploymentSlots);
+
+        //    try
+        //    {
+        //        var player = await info.FirstOrDefaultAsync(p => p.ID == id);
+
+        //        if (player != null && includes.HasFlag(E_PlayerInclude.BattleLogs))
+        //        {
+        //            player.BattleLogs = await _context.BattleLogs
+        //                .Where(b => b.DefenderId == id || b.AttackerId == id)
+        //                .ToListAsync();
+        //        }
+
+        //        return player;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log.Error($"GetPlayerAsync() 예외 발생 | ID : {id} , includes: {includes}, isReadonly : {isReadonly} | ex : {ex}");
+        //        return null;
+        //    }
+        //}
+
+        public async Task<PlayerInfo> GetPlayerAsync(string id, E_PlayerInclude includes = E_PlayerInclude.None, bool isReadonly = false)
         {
             var query = _context.Players.AsQueryable<PlayerInfo>();
 
@@ -68,27 +105,20 @@ namespace LearningServer01.Repositories
                 query = query.AsNoTracking();
             }
 
-            return await query.FirstOrDefaultAsync(p => p.ID == id);
-        }
+            if (includes.HasFlag(E_PlayerInclude.PlacedEntities))
+                query = query.Include(p => p.PlacedEntities).ThenInclude(e => e.Garrisons);
 
-        public async Task<PlayerInfo> GetPlayerFullAsync(string id, bool isReadonly = false)
-        {
-            var query = _context.Players.AsQueryable<PlayerInfo>();
+            if (includes.HasFlag(E_PlayerInclude.InventoryItems))
+                query = query.Include(p => p.InventoryItems);
 
-            if (isReadonly)
-            {
-                query = query.AsNoTracking();
-            }
+            if (includes.HasFlag(E_PlayerInclude.DeploymentSlots))
+                query = query.Include(p => p.DeploymentSlots);
+
             try
             {
-                var player = await
-                    query.Include(p => p.PlacedEntities)
-                        .ThenInclude(e => e.Garrisons)
-                    .Include(p => p.InventoryItems)
-                    .Include(p => p.DeploymentSlots)
-                    .FirstOrDefaultAsync(p => p.ID == id);
+                var player = await query.FirstOrDefaultAsync(p => p.ID == id);
 
-                if (player != null)
+                if (player != null && includes.HasFlag(E_PlayerInclude.BattleLogs))
                 {
                     player.BattleLogs = await _context.BattleLogs
                         .Where(b => b.DefenderId == id || b.AttackerId == id)
@@ -99,7 +129,7 @@ namespace LearningServer01.Repositories
             }
             catch (Exception ex)
             {
-                Log.Error($"GetPlayerFullAsync() 예외 발생 | ID : {id} , isReadonly : {isReadonly} | ex : {ex}");
+                Log.Error($"GetPlayerAsync() 예외 발생 | ID : {id} , includes: {includes}, isReadonly : {isReadonly} | ex : {ex}");
                 return null;
             }
         }
@@ -203,23 +233,49 @@ namespace LearningServer01.Repositories
                 .Where(s => s.OwnerID == userId && s.UID == uid)
                 .ExecuteDeleteAsync() > 0;
         }
-        public async Task<PlayerInfo> GetRandomOpponentAsync(string excludeUserId)
+        public async Task<(PlayerInfo? opponent, bool foundInExcluede)> GetRandomOpponentAsync(string askerId, IReadOnlyList<string> excludeIds)
         {
-            var count = await _context.Players.CountAsync(p => p.ID != excludeUserId);
+            var totalExclude = excludeIds.ToList();
+            totalExclude.Add(askerId);
 
-            if (count == 0)
-                return null;
+            var count = await _context.Players.CountAsync(p => totalExclude.Contains(p.ID) == false);
 
-            var randomIndex = new Random().Next(count);
+            if (count > 0)
+            {
+                var randomIndex = new Random().Next(count);
 
-            return await _context.Players
-                .Where(p => p.ID != excludeUserId)
-                .Skip(randomIndex)
-                .Include(p => p.PlacedEntities)
-                    .ThenInclude(e => e.Garrisons)
-                .Include(p => p.InventoryItems)
-                .Include(p => p.DeploymentSlots)
-                .FirstOrDefaultAsync();
+                // TODO : 추후에 매칭 상대를 필터해야하는 부분이 추가로 생기면
+                // 이쪽에 작업하면 될듯 (e.g 비슷한 Rate 대의 유저들 끼리의 매칭
+                // 또는 '접속' 중인 유저는 제외 등)
+                var opponent = await _context.Players
+                    // 제외 리스트에서 없는 애만 대상으로함
+                    .Where(p => totalExclude.Contains(p.ID) == false)
+                    .Skip(randomIndex)
+                    .Include(p => p.PlacedEntities)
+                        .ThenInclude(e => e.Garrisons)
+                     .Include(p => p.InventoryItems)
+                    // .Include(p => p.DeploymentSlots)
+                    .FirstOrDefaultAsync();
+
+                if (opponent != null)
+                    return (opponent, false);
+            }
+
+            if (excludeIds.Count > 0)
+            {
+                var oldestId = excludeIds[0];
+
+                return (await _context.Players
+                    // 제외 리스트에서 없는 애만 대상으로함
+                    .Where(p => p.ID == oldestId)
+                    .Include(p => p.PlacedEntities)
+                        .ThenInclude(e => e.Garrisons)
+                    .Include(p => p.InventoryItems)
+                    //  .Include(p => p.DeploymentSlots)
+                    .FirstOrDefaultAsync(), true);
+            }
+
+            return (null, false);
         }
 
         public async Task<bool> SaveChangesAsync(

@@ -1,6 +1,6 @@
 {
-  "Version": "260308_123217",
-  "TotalHash": "9f39899556848dcb256ff2ba1c8597a7d7fe751215e5a9d7151f39f99f3de8d5",
+  "Version": "260315_125324",
+  "TotalHash": "9086c884080c6e04c30ace4f886df75a1278e6057405afb1032126d6fda4b7a1",
   "Files": [
     {
       "Name": "ActionPointTable",
@@ -19,8 +19,8 @@
     },
     {
       "Name": "AssetMetaTable",
-      "Hash": "3486724ae4bc4d86960199fc492cbf6098cac079a28abe46bf6c34c05391603c",
-      "ByteSize": 38598
+      "Hash": "3c61e38549784685221b4bf4b30d1a66e3a83b92a5eb401a2b1c32c0cfc49cf7",
+      "ByteSize": 39425
     },
     {
       "Name": "AudioTable",
@@ -34,8 +34,8 @@
     },
     {
       "Name": "CurrencyTable",
-      "Hash": "c8dcb77fe1de27a4af391b358221bc03a9f6176cb69c8920a461c18455201827",
-      "ByteSize": 294
+      "Hash": "fdb05c06794646db55f439bc25ab0e5b563cc2753082ec561326382992d7c04b",
+      "ByteSize": 513
     },
     {
       "Name": "EntityTable",
@@ -64,7 +64,7 @@
     },
     {
       "Name": "ProjectileTable",
-      "Hash": "66d4c463c000880d9c628b5e46e18537e8410b82a1d4e3e29559e5cefb41e9bb",
+      "Hash": "796f03b7ffc3d81680ff2cbc57cccde4a0c9bd63255289c3dcf4f090111578a7",
       "ByteSize": 23765
     },
     {
@@ -84,12 +84,12 @@
     },
     {
       "Name": "StatTable",
-      "Hash": "b83bda08ff1a867a2d51134209215d6bd8080c7ac17315d5b0cf2aa5b7931fbd",
+      "Hash": "2d0da2e691c019009937f2bed8e84d4aba8168c290795d743c3fbcfa896b8373",
       "ByteSize": 7392
     },
     {
       "Name": "StructureTable",
-      "Hash": "b25d7f674ebc803561eca06c04e91e59cdc25356e8f7292a7d6e8f3f63380d1d",
+      "Hash": "c55381acb5933b0d1ff58f05c6e340446f6517a9bba412c9c86f188411710f1d",
       "ByteSize": 8199
     },
     {

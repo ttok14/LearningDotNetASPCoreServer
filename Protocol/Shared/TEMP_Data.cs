@@ -5,6 +5,9 @@ namespace JNetwork
     /// </summary>
     public static class TEMP_Data
     {
+        // 매칭 돌릴때 중복 방지 큐 유저 수
+        public const int MatchingQueueManagementCount = 5;
+
         // 승리
         public const int WinGold = 200;
         public const int WinWood = 50;

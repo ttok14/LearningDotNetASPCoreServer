@@ -233,7 +233,11 @@ namespace GameDB
 		[Key(3)]
 		public string Description;
 		[Key(4)]
-		public string SpriteKey;
+		public string SmallIconKey;
+		[Key(5)]
+		public string MediumIconKey;
+		[Key(6)]
+		public string BigIconKey;
 
 		public static Dictionary<uint, CurrencyTable> Deserialize(ref byte[] _readBytes)
 		{

@@ -22,18 +22,21 @@ namespace LearningServer01.Services.PlayerService
         ILogger<PlayerService> _logger;
         //GameSettings _gameSettings;
         ActiveBattleCache _activeBattleCache;
+        PlayerMatchingContextCache _matchingContextCache;
 
         public PlayerService(
             IPlayerRepository repo,
             ILogger<PlayerService> logger,
             ITableService tableService,
-            ActiveBattleCache activeBattleCache)
+            ActiveBattleCache activeBattleCache,
+            PlayerMatchingContextCache matchingContextCache)
         // IOptions<GameSettings> gameSettingsOptions
         {
             _repo = repo;
             _logger = logger;
             _tableService = tableService;
             _activeBattleCache = activeBattleCache;
+            _matchingContextCache = matchingContextCache;
             //  _gameSettings = gameSettingsOptions.Value;
         }
 
@@ -111,11 +114,11 @@ namespace LearningServer01.Services.PlayerService
                 Level = 1,
                 Nickname = string.Empty,
                 StatusMsg = "제발 쳐들어오지 마세요 ㅜㅜ",
-                Bounty = 1234543,
+                Bounty = 100,
                 StrengthStat = 959595,
-                Gold = 10000,
-                Wood = 10000,
-                Food = 10000,
+                Gold = 50000,
+                Wood = 50000,
+                Food = 50000,
                 SkillID01 = 1,
                 SkillID02 = 15,
                 SkillID03 = 12,
@@ -170,7 +173,7 @@ namespace LearningServer01.Services.PlayerService
 #if DEBUG
         async Task<(ERROR_CODE errCode, int remainedCurrency)> IPlayerService.CheatCurrency(string id, E_CurrencyType currencyType)
         {
-            var player = await _repo.GetPlayerBasicAsync(id);
+            var player = await _repo.GetPlayerAsync(id, E_PlayerInclude.None);
             if (player == null)
                 return (ERROR_CODE.FAIL_INVALID_USER, 0);
 
@@ -205,7 +208,7 @@ namespace LearningServer01.Services.PlayerService
 
         public async Task<ERROR_CODE> EquipDeploymentSlotAsync(string id, int equipSlotIdx, long equipItemUid)
         {
-            var player = await _repo.GetPlayerFullAsync(id);
+            var player = await _repo.GetPlayerAsync(id, E_PlayerInclude.DeploymentSlots | E_PlayerInclude.InventoryItems);
             if (player == null)
                 return ERROR_CODE.FAIL_INVALID_USER;
 
@@ -238,7 +241,7 @@ namespace LearningServer01.Services.PlayerService
 
         public async Task<ERROR_CODE> UnequipDeploymentSlotAsync(string id, int equipSlotIdx)
         {
-            var player = await _repo.GetPlayerFullAsync(id);
+            var player = await _repo.GetPlayerAsync(id, E_PlayerInclude.DeploymentSlots);
             if (player == null)
                 return ERROR_CODE.FAIL_INVALID_USER;
 
@@ -263,7 +266,7 @@ namespace LearningServer01.Services.PlayerService
             if (ownerEntityUid == 0 || garrisonUnitUid == 0 || slotIdx < 0)
                 return ERROR_CODE.INVALID_INPUT;
 
-            var player = await _repo.GetPlayerFullAsync(id);
+            var player = await _repo.GetPlayerAsync(id, E_PlayerInclude.PlacedEntities | E_PlayerInclude.InventoryItems);
             if (player == null)
                 return ERROR_CODE.FAIL_INVALID_USER;
 
@@ -357,7 +360,7 @@ namespace LearningServer01.Services.PlayerService
             if (ownerEntityUid == 0 || spawnUnitUid == 0)
                 return ERROR_CODE.INVALID_INPUT;
 
-            var player = await _repo.GetPlayerFullAsync(id);
+            var player = await _repo.GetPlayerAsync(id, E_PlayerInclude.PlacedEntities | E_PlayerInclude.InventoryItems);
             if (player == null) return ERROR_CODE.FAIL_INVALID_USER;
 
             // 엔티티 존재 체크
@@ -414,7 +417,7 @@ namespace LearningServer01.Services.PlayerService
 
         public async Task<(ERROR_CODE, S_GarrisonSlotType)> UngarrisonUnitAsync(string id, long ownerEntityUid, long ungarrisonUnitUid)
         {
-            var player = await _repo.GetPlayerFullAsync(id);
+            var player = await _repo.GetPlayerAsync(id, E_PlayerInclude.PlacedEntities);
             if (player == null)
                 return (ERROR_CODE.FAIL_INVALID_USER, S_GarrisonSlotType.None);
 
@@ -440,7 +443,7 @@ namespace LearningServer01.Services.PlayerService
 
         public async Task<(ERROR_CODE errCode, long uid, int remainedGold, int remainedWood, int remainedFood)> BuyItemAsync(string id, int itemTid)
         {
-            var player = await _repo.GetPlayerFullAsync(id);
+            var player = await _repo.GetPlayerAsync(id, E_PlayerInclude.InventoryItems);
             if (player == null)
                 return (ERROR_CODE.FAIL_INVALID_USER, 0, 0, 0, 0);
 
@@ -496,7 +499,7 @@ namespace LearningServer01.Services.PlayerService
 
         public async Task<ERROR_CODE> MoveEntityAsync(string id, long entityUid, float posX, float posZ, float rotY)
         {
-            var player = await _repo.GetPlayerFullAsync(id);
+            var player = await _repo.GetPlayerAsync(id, E_PlayerInclude.PlacedEntities);
             if (player == null)
                 return ERROR_CODE.FAIL_INVALID_USER;
 
@@ -513,7 +516,7 @@ namespace LearningServer01.Services.PlayerService
 
         public async Task<ERROR_CODE> EquipHeroAsync(string id, long heroItemUid)
         {
-            var player = await _repo.GetPlayerFullAsync(id);
+            var player = await _repo.GetPlayerAsync(id, E_PlayerInclude.InventoryItems);
             if (player == null)
                 return ERROR_CODE.FAIL_INVALID_USER;
 
@@ -540,7 +543,7 @@ namespace LearningServer01.Services.PlayerService
 
         public async Task<ERROR_CODE> UnequipHeroAsync(string id)
         {
-            var player = await _repo.GetPlayerFullAsync(id);
+            var player = await _repo.GetPlayerAsync(id);
             if (player == null)
                 return ERROR_CODE.FAIL_INVALID_USER;
 
@@ -577,7 +580,7 @@ namespace LearningServer01.Services.PlayerService
             if (await _repo.IsPlayerExistByNickname(nicknameToEnter))
                 return (ERROR_CODE.NICKNAME_DUPLICATE);
 
-            var me = await _repo.GetPlayerBasicAsync(id);
+            var me = await _repo.GetPlayerAsync(id);
 
             if (me == null)
                 return (ERROR_CODE.FAIL_INVALID_USER);
@@ -599,7 +602,7 @@ namespace LearningServer01.Services.PlayerService
             if (message.Length > 20)
                 return ERROR_CODE.INVALID_INPUT;
 
-            var me = await _repo.GetPlayerBasicAsync(id);
+            var me = await _repo.GetPlayerAsync(id);
 
             if (me == null)
                 return ERROR_CODE.FAIL_INVALID_USER;
@@ -611,10 +614,13 @@ namespace LearningServer01.Services.PlayerService
 
         public async Task<(ERROR_CODE errCode, PlayerInfo? myInfo)> EnterHomeAsync(string id)
         {
-            var me = await _repo.GetPlayerFullAsync(id, isReadonly: true);
+            var me = await _repo.GetPlayerAsync(id, E_PlayerInclude.Full, isReadonly: true);
 
             if (me == null)
                 return (ERROR_CODE.FAIL_INVALID_USER, null);
+
+            // 매칭 필터 리스트에서 제거
+            _matchingContextCache.Remove(id);
 
             return (ERROR_CODE.SUCCESS, me);
         }
@@ -625,7 +631,7 @@ namespace LearningServer01.Services.PlayerService
                 return (ERROR_CODE.FAIL_INVALID_USER, null, null);
 
             // 내 정보 조회
-            var me = await _repo.GetPlayerFullAsync(id);
+            var me = await _repo.GetPlayerAsync(id, E_PlayerInclude.InventoryItems | E_PlayerInclude.DeploymentSlots);
 
             if (me == null)
                 return (ERROR_CODE.FAIL_INVALID_USER, null, null);
@@ -636,22 +642,25 @@ namespace LearningServer01.Services.PlayerService
             if (me.Gold < entryCost)
                 return (ERROR_CODE.NOT_ENOUGH_CURRENCY, null, null);
 
-            var opponent = await _repo.GetRandomOpponentAsync(excludeUserId: me.ID);
+            var searchRes = await _repo.GetRandomOpponentAsync(askerId: me.ID, _matchingContextCache.GetMatchingListOrdered(me.ID));
 
-            if (opponent == null)
+            if (searchRes.opponent == null)
                 return (ERROR_CODE.SEARCH_OPPONENT_NOT_FOUND, null, null);
+
+            _matchingContextCache.Add(id, searchRes.opponent.ID);
 
             int remainedGold = Math.Max(me.Gold - entryCost, 0);
 
             // 재화 차감 적용
             me.Gold = remainedGold;
+            _matchingContextCache.Add(me.ID, searchRes.opponent.ID);
 
             var saveRes = await _repo.SaveChangesAsync() ? ERROR_CODE.SUCCESS : ERROR_CODE.FAIL_DATABASE_SAVE;
 
             if (saveRes != ERROR_CODE.SUCCESS)
                 return (saveRes, null, null);
 
-            return (saveRes, me, opponent);
+            return (saveRes, me, searchRes.opponent);
         }
 
         public async Task<(ERROR_CODE errCode, PlayerInfo? myInfo, PlayerInfo? opponentInfo)> LoadRevengeAsync(
@@ -663,7 +672,7 @@ namespace LearningServer01.Services.PlayerService
                 return (ERROR_CODE.INVALID_INPUT, null, null);
 
             // 내 정보 조회
-            var me = await _repo.GetPlayerFullAsync(id);
+            var me = await _repo.GetPlayerAsync(id, E_PlayerInclude.DeploymentSlots | E_PlayerInclude.InventoryItems);
             if (me == null)
                 return (ERROR_CODE.FAIL_INVALID_USER, null, null);
 
@@ -689,7 +698,7 @@ namespace LearningServer01.Services.PlayerService
                 return (ERROR_CODE.BATTLE_MODE_INVALID, null, null);
 
             // 복수 대상 정보 조회
-            var opponent = await _repo.GetPlayerFullAsync(opponentId, isReadonly: true);
+            var opponent = await _repo.GetPlayerAsync(opponentId, E_PlayerInclude.PlacedEntities | E_PlayerInclude.InventoryItems, isReadonly: true);
             if (opponent == null)
                 return (ERROR_CODE.SEARCH_OPPONENT_NOT_FOUND, null, null);
 
@@ -738,7 +747,7 @@ namespace LearningServer01.Services.PlayerService
 
         async Task<ERROR_CODE> IPlayerService.DestroyStructureAsync(string id, long entityUid)
         {
-            var player = await _repo.GetPlayerFullAsync(id);
+            var player = await _repo.GetPlayerAsync(id, E_PlayerInclude.PlacedEntities);
             if (player == null)
                 return ERROR_CODE.FAIL_INVALID_USER;
 
@@ -757,7 +766,7 @@ namespace LearningServer01.Services.PlayerService
         public async Task<(ERROR_CODE errCode, PlayerInfo? playerInfo, BattleLogInfo resultLog, long rewardGold, long totalGold, long rewardWood, long totalWood, long rewardFood, long totalFood, int addedBounty, int totalBounty)>
             FinishBattleAsync(string id, string battleSessionId, string opponentId, S_BattleResult battleResult, long[] destroyedEntityUids, float playTime)
         {
-            var player = await _repo.GetPlayerBasicAsync(id);
+            var player = await _repo.GetPlayerAsync(id, E_PlayerInclude.BattleLogs);
             if (player == null)
                 return (ERROR_CODE.FAIL_INVALID_USER, null, null, 0, 0, 0, 0, 0, 0, 0, 0);
 
@@ -769,7 +778,7 @@ namespace LearningServer01.Services.PlayerService
             if (_activeBattleCache.TryPopTargetSession(id, battleSessionId, out var session) == false)
                 return (ERROR_CODE.ACTIVE_BATTLE_SESSION_NOT_EXIST, null, null, 0, 0, 0, 0, 0, 0, 0, 0);
 
-            var opponent = await _repo.GetPlayerFullAsync(opponentId);
+            var opponent = await _repo.GetPlayerAsync(opponentId);
 
             if (opponent == null)
             {
@@ -888,7 +897,7 @@ namespace LearningServer01.Services.PlayerService
             if (targetEntityUids == null || targetEntityUids.Length == 0)
                 return (ERROR_CODE.NO_TARGET_ENTITY_FOUND, null, null);
 
-            var player = await _repo.GetPlayerFullAsync(id);
+            var player = await _repo.GetPlayerAsync(id, E_PlayerInclude.PlacedEntities);
 
             if (player == null || player.PlacedEntities == null)
                 return (ERROR_CODE.FAIL_INVALID_USER, null, null);
@@ -1104,7 +1113,7 @@ namespace LearningServer01.Services.PlayerService
 
         async Task<ERROR_CODE> IPlayerService.ChangeSkill(string id, int[] skillSet, int[] spellSet)
         {
-            var player = await _repo.GetPlayerFullAsync(id);
+            var player = await _repo.GetPlayerAsync(id);
             if (player == null)
                 return ERROR_CODE.FAIL_INVALID_USER;
 
@@ -1153,7 +1162,7 @@ namespace LearningServer01.Services.PlayerService
             if (playerRes.res == false)
                 return (ERROR_CODE.FAIL_INVALID_USER, string.Empty);
 
-            var opponentPlayer = await _repo.GetPlayerBasicAsync(opponentPlayerId, isReadonly: true);
+            var opponentPlayer = await _repo.GetPlayerAsync(opponentPlayerId, isReadonly: true);
             if (opponentPlayer == null)
                 return (ERROR_CODE.FAIL_INVALID_USER, string.Empty);
 
